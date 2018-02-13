@@ -1,12 +1,11 @@
-import { Reflection, ReflectionKind, ContainerReflection, DeclarationReflection } from "../../models/reflections/index";
-import { ReflectionGroup } from "../../models/ReflectionGroup";
-import { SourceDirectory } from "../../models/sources/directory";
-import { Component, ConverterComponent } from "../components";
-import { Converter } from "../converter";
-import { Context } from "../context";
+import { Reflection, ReflectionKind, ContainerReflection, DeclarationReflection } from '../../models/reflections/index';
+import { ReflectionGroup } from '../../models/ReflectionGroup';
+import { SourceDirectory } from '../../models/sources/directory';
+import { Component, ConverterComponent } from '../components';
+import { Converter } from '../converter';
+import { Context } from '../context';
 
 const camelCaseToHyphenRegex = /([A-Z])|\W+(\w)/g;
-
 
 /**
  * A handler that sorts and groups the found reflections in the resolving phase.
@@ -44,14 +43,14 @@ export class GroupPlugin extends ConverterComponent {
         ReflectionKind.ConstructorSignature,
         ReflectionKind.IndexSignature,
         ReflectionKind.GetSignature,
-        ReflectionKind.SetSignature,
+        ReflectionKind.SetSignature
     ];
 
     /**
      * Define the singular name of individual reflection kinds.
      */
     static SINGULARS = (function () {
-        var singulars = {};
+        const singulars = {};
         singulars[ReflectionKind.Enum] = 'Enumeration';
         singulars[ReflectionKind.EnumMember] = 'Enumeration member';
         return singulars;
@@ -61,7 +60,7 @@ export class GroupPlugin extends ConverterComponent {
      * Define the plural name of individual reflection kinds.
      */
     static PLURALS = (function () {
-        var plurals = {};
+        const plurals = {};
         plurals[ReflectionKind.Class] = 'Classes';
         plurals[ReflectionKind.Property] = 'Properties';
         plurals[ReflectionKind.Enum] = 'Enumerations';
@@ -69,8 +68,6 @@ export class GroupPlugin extends ConverterComponent {
         plurals[ReflectionKind.TypeAlias] = 'Type aliases';
         return plurals;
     })();
-
-
 
     /**
      * Create a new GroupPlugin instance.
@@ -82,7 +79,6 @@ export class GroupPlugin extends ConverterComponent {
         });
     }
 
-
     /**
      * Triggered when the converter resolves a reflection.
      *
@@ -90,18 +86,16 @@ export class GroupPlugin extends ConverterComponent {
      * @param reflection  The reflection that is currently resolved.
      */
     private onResolve(context: Context, reflection: Reflection) {
-        var reflection = reflection;
         reflection.kindString = GroupPlugin.getKindSingular(reflection.kind);
 
         if (reflection instanceof ContainerReflection) {
-            var container = <ContainerReflection>reflection;
+            const container = <ContainerReflection>reflection;
             if (container.children && container.children.length > 0) {
                 container.children.sort(GroupPlugin.sortCallback);
                 container.groups = GroupPlugin.getReflectionGroups(container.children);
             }
         }
     }
-
 
     /**
      * Triggered when the converter has finished resolving a project.
@@ -112,13 +106,15 @@ export class GroupPlugin extends ConverterComponent {
         function walkDirectory(directory: SourceDirectory) {
             directory.groups = GroupPlugin.getReflectionGroups(directory.getAllReflections());
 
-            for (var key in directory.directories) {
-                if (!directory.directories.hasOwnProperty(key)) continue;
+            for (let key in directory.directories) {
+                if (!directory.directories.hasOwnProperty(key)) {
+                    continue;
+                }
                 walkDirectory(directory.directories[key]);
             }
         }
 
-        var project = context.project;
+        const project = context.project;
         if (project.children && project.children.length > 0) {
             project.children.sort(GroupPlugin.sortCallback);
             project.groups = GroupPlugin.getReflectionGroups(project.children);
@@ -130,7 +126,6 @@ export class GroupPlugin extends ConverterComponent {
         });
     }
 
-
     /**
      * Create a grouped representation of the given list of reflections.
      *
@@ -140,11 +135,11 @@ export class GroupPlugin extends ConverterComponent {
      * @returns An array containing all children of the given reflection grouped by their kind.
      */
     static getReflectionGroups(reflections: Reflection[]): ReflectionGroup[] {
-        var groups: ReflectionGroup[] = [];
+        const groups: ReflectionGroup[] = [];
         reflections.forEach((child) => {
-            for (var i = 0; i < groups.length; i++) {
-                var group = groups[i];
-                if (group.kind != child.kind) {
+            for (let i = 0; i < groups.length; i++) {
+                const group = groups[i];
+                if (group.kind !== child.kind) {
                     continue;
                 }
 
@@ -152,7 +147,7 @@ export class GroupPlugin extends ConverterComponent {
                 return;
             }
 
-            var group = new ReflectionGroup(GroupPlugin.getKindPlural(child.kind), child.kind);
+            const group = new ReflectionGroup(GroupPlugin.getKindPlural(child.kind), child.kind);
             if (child.flags.isCoveoComponentOptions) {
                 group.title = 'Component Options';
             }
@@ -183,7 +178,7 @@ export class GroupPlugin extends ConverterComponent {
         });
 
         groups.forEach((group) => {
-            var someExported = false, allInherited = true, allPrivate = true, allProtected = true, allExternal = true;
+            let someExported = false, allInherited = true, allPrivate = true, allProtected = true, allExternal = true;
             group.children.forEach((child) => {
                 someExported = child.flags.isExported || someExported;
                 allPrivate = child.flags.isPrivate && allPrivate;
@@ -261,7 +256,6 @@ export class GroupPlugin extends ConverterComponent {
 
     }
 
-
     /**
      * Transform the internal typescript kind identifier into a human readable version.
      *
@@ -269,11 +263,10 @@ export class GroupPlugin extends ConverterComponent {
      * @returns A human readable version of the given typescript kind identifier.
      */
     private static getKindString(kind: ReflectionKind): string {
-        var str = ReflectionKind[kind];
+        let str = ReflectionKind[kind];
         str = str.replace(/(.)([A-Z])/g, (m, a, b) => a + ' ' + b.toLowerCase());
         return str;
     }
-
 
     /**
      * Return the singular name of a internal typescript kind identifier.
@@ -289,7 +282,6 @@ export class GroupPlugin extends ConverterComponent {
         }
     }
 
-
     /**
      * Return the plural name of a internal typescript kind identifier.
      *
@@ -304,7 +296,6 @@ export class GroupPlugin extends ConverterComponent {
         }
     }
 
-
     /**
      * Callback used to sort reflections by weight defined by ´GroupPlugin.WEIGHTS´ and name.
      *
@@ -313,19 +304,21 @@ export class GroupPlugin extends ConverterComponent {
      * @returns The sorting weight.
      */
     static sortCallback(a: Reflection, b: Reflection): number {
-        var aWeight = GroupPlugin.WEIGHTS.indexOf(a.kind);
-        var bWeight = GroupPlugin.WEIGHTS.indexOf(b.kind);
-        // Special sort for component options : Try to put them at the top of each class
-        if (a.flags.isCoveoComponentOptions && b.kind > ReflectionKind.Class) {
-            return -1;
-        } else if (b.flags.isCoveoComponentOptions && a.kind > ReflectionKind.Class) {
-            return 1;
-        }
-        if (aWeight == bWeight) {
-            if (a.flags.isStatic && !b.flags.isStatic) return 1;
-            if (!a.flags.isStatic && b.flags.isStatic) return -1;
-            if (a.name == b.name) return 0;
+        const aWeight = GroupPlugin.WEIGHTS.indexOf(a.kind);
+        const bWeight = GroupPlugin.WEIGHTS.indexOf(b.kind);
+        if (aWeight === bWeight) {
+            if (a.flags.isStatic && !b.flags.isStatic) {
+                return 1;
+            }
+            if (!a.flags.isStatic && b.flags.isStatic) {
+                return -1;
+            }
+            if (a.name === b.name) {
+                return 0;
+            }
             return a.name > b.name ? 1 : -1;
-        } else return aWeight - bWeight;
+        } else {
+            return aWeight - bWeight;
+        }
     }
 }
