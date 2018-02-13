@@ -61,7 +61,6 @@ var Renderer = (function (_super) {
         if (page.isDefaultPrevented) {
             return false;
         }
-        console.log(page.filename);
         page.template = page.template || this.theme.resources.templates.getResource(page.templateName).getTemplate();
         page.contents = page.template(page);
         this.trigger(events_1.PageEvent.END, page);

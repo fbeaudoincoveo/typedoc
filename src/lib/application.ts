@@ -230,7 +230,7 @@ export class Application extends ChildableComponent<Application, AbstractCompone
      * @param out  The path and file name of the target file.
      * @returns TRUE if the json file could be written successfully, otherwise FALSE.
      */
-    public generateJson(input: any, out: string): boolean {
+    public generateJson(input: any, out: string, linkPrefix?: string): boolean {
         const project = input instanceof ProjectReflection ? input : this.convert(input);
         if (!project) {
             return false;
@@ -239,7 +239,7 @@ export class Application extends ChildableComponent<Application, AbstractCompone
         out = Path.resolve(out);
         const eventData = { outputDirectory: Path.dirname(out), outputFile: Path.basename(out) };
         const ser = this.serializer.projectToObject(project, { begin: eventData, end: eventData });
-        const prettifiedJson = this.prettifyJson(ser, project, )
+        const prettifiedJson = this.prettifyJson(ser, project, linkPrefix)
         writeFile(out, JSON.stringify(prettifiedJson, null, '\t'), false);
         this.logger.success('JSON written to %s', out);
 
@@ -269,7 +269,10 @@ export class Application extends ChildableComponent<Application, AbstractCompone
         let visitChildren = (json, path) => {
             if (json != null) {
                 let comment = json.comment;
-                if (comment && comment.shortText != null) {
+                if (json.name == project.name) {
+                    json.name = '';
+                }
+                if (comment && comment.shortText != null && json.name != project.name) {
                     let markedText = marked(comment.shortText + (comment.text ? '\n' + comment.text : ''));
                     let type = '';
 
@@ -279,17 +282,25 @@ export class Application extends ChildableComponent<Application, AbstractCompone
                         type = json.type.name;
                     }
                     let notSupportedInValues = json.notSupportedIn ? json.notSupportedIn : '';
-                    nodeList.push({ name: path + json.name, notSupportedIn: notSupportedInValues, comment: linkParser.parseMarkdown(markedText), type: type, constrainedValues: constrainedValues, miscAttributes: miscAttributes });
+                    nodeList.push({
+                        name: path + json.name,
+                        notSupportedIn: notSupportedInValues,
+                        comment: linkParser.parseMarkdown(markedText),
+                        type,
+                        constrainedValues,
+                        miscAttributes
+                    });
                 }
                 if (json.children != null && json.children.length > 0) {
-                    json.children.forEach(child => visitChildren(child, path + json.name + '.'));
+                    let newPath = path + json.name;
+                    if (newPath != '') {
+                        newPath += '.';
+                    }
+                    json.children.forEach(child => visitChildren(child, newPath));
                 }
             }
-
-
         };
         visitChildren(obj, '');
-
         return nodeList;
     }
 

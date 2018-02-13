@@ -163,8 +163,6 @@ export class Renderer extends ChildableComponent<Application, RendererComponent>
             return false;
         }
 
-        console.log(page.filename);
-
 
         page.template = page.template || this.theme.resources.templates.getResource(page.templateName).getTemplate();
         page.contents = page.template(page);

@@ -112,7 +112,7 @@ var Application = (function (_super) {
         }
         return true;
     };
-    Application.prototype.generateJson = function (input, out) {
+    Application.prototype.generateJson = function (input, out, linkPrefix) {
         var project = input instanceof index_2.ProjectReflection ? input : this.convert(input);
         if (!project) {
             return false;
@@ -120,7 +120,7 @@ var Application = (function (_super) {
         out = Path.resolve(out);
         var eventData = { outputDirectory: Path.dirname(out), outputFile: Path.basename(out) };
         var ser = this.serializer.projectToObject(project, { begin: eventData, end: eventData });
-        var prettifiedJson = this.prettifyJson(ser, project);
+        var prettifiedJson = this.prettifyJson(ser, project, linkPrefix);
         index_3.writeFile(out, JSON.stringify(prettifiedJson, null, '\t'), false);
         this.logger.success('JSON written to %s', out);
         return true;
@@ -151,7 +151,10 @@ var Application = (function (_super) {
         var visitChildren = function (json, path) {
             if (json != null) {
                 var comment = json.comment;
-                if (comment && comment.shortText != null) {
+                if (json.name == project.name) {
+                    json.name = '';
+                }
+                if (comment && comment.shortText != null && json.name != project.name) {
                     var markedText = marked(comment.shortText + (comment.text ? '\n' + comment.text : ''));
                     var type = '';
                     var constrainedValues = _this.generateConstrainedValues(json);
@@ -160,10 +163,21 @@ var Application = (function (_super) {
                         type = json.type.name;
                     }
                     var notSupportedInValues = json.notSupportedIn ? json.notSupportedIn : '';
-                    nodeList.push({ name: path + json.name, notSupportedIn: notSupportedInValues, comment: linkParser.parseMarkdown(markedText), type: type, constrainedValues: constrainedValues, miscAttributes: miscAttributes });
+                    nodeList.push({
+                        name: path + json.name,
+                        notSupportedIn: notSupportedInValues,
+                        comment: linkParser.parseMarkdown(markedText),
+                        type: type,
+                        constrainedValues: constrainedValues,
+                        miscAttributes: miscAttributes
+                    });
                 }
                 if (json.children != null && json.children.length > 0) {
-                    json.children.forEach(function (child) { return visitChildren(child, path + json.name + '.'); });
+                    var newPath_1 = path + json.name;
+                    if (newPath_1 != '') {
+                        newPath_1 += '.';
+                    }
+                    json.children.forEach(function (child) { return visitChildren(child, newPath_1); });
                 }
             }
         };
