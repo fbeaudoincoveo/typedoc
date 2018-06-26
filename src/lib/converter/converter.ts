@@ -331,7 +331,7 @@ export class Converter extends ChildableComponent<Application, ConverterComponen
             let tagValue = tag[1];
             const tagValueInfo = this.application.notSupportedFeaturesConfig[tagValue];
             if (tagValueInfo) {
-                tagValue = `<a href=${tagValueInfo.link}>${tagValueInfo.name}</a>`
+                tagValue = `<a href="${tagValueInfo.link}">${tagValueInfo.name}</a>`
             }
             result.comment.tags.push(new CommentTag('not supported in', '', tagValue));
             result.notSupportedIn = tag[1].split(/,\s?/);

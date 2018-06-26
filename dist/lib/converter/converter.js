@@ -141,7 +141,7 @@ var Converter = (function (_super) {
             var tagValue = tag[1];
             var tagValueInfo = this.application.notSupportedFeaturesConfig[tagValue];
             if (tagValueInfo) {
-                tagValue = "<a href=" + tagValueInfo.link + ">" + tagValueInfo.name + "</a>";
+                tagValue = "<a href=\"" + tagValueInfo.link + "\">" + tagValueInfo.name + "</a>";
             }
             result.comment.tags.push(new comments_1.CommentTag('not supported in', '', tagValue));
             result.notSupportedIn = tag[1].split(/,\s?/);
