@@ -190,13 +190,11 @@ var Application = (function (_super) {
     Application.prototype.generateConstrainedValues = function (str) {
         var constrainedValues = [];
         if (str && str['type'] && str['type'].type == 'union') {
-            if (str.type.types[0] && str.type.types[0].typeArguments && str.type.types[0].typeArguments[0]) {
-                constrainedValues = str.type.types[0].typeArguments[0].types.map(function (type) {
-                    console.log(type);
+            if (str.type.types[1] && str.type.types[1].elementType && str.type.types[1].elementType.types) {
+                constrainedValues = str.type.types[1].elementType.types.map(function (type) {
                     return type.value;
                 });
-                if (str.type.types[0].name && str.type.types[0].name.toLowerCase() == 'array') {
-                    console.log('asdasd');
+                if (str.type.types[0].type && str.type.types[0].type.toLowerCase() == 'array') {
                     var copy = [];
                     for (var i = 0; i < constrainedValues.length; i++) {
                         copy[i] = constrainedValues.slice(0, i + 1).join(',');

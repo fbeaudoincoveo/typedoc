@@ -37,6 +37,7 @@ var ReflectionSerializer = (function (_super) {
             name: reflection.name,
             kind: reflection.kind,
             kindString: reflection.kindString,
+            notSupportedIn: reflection.notSupportedIn,
             flags: {}
         });
         if (reflection.originalName !== reflection.name) {

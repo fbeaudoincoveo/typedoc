@@ -4,7 +4,7 @@ import { Reflection, TraverseProperty } from '../../../models';
 import { ReflectionSerializerComponent } from '../../components';
 import { DecoratorWrapper } from '../models';
 
-@Component({name: 'serializer:reflection'})
+@Component({ name: 'serializer:reflection' })
 export class ReflectionSerializer extends ReflectionSerializerComponent<Reflection> {
 
   static PRIORITY = 1000;
@@ -18,11 +18,12 @@ export class ReflectionSerializer extends ReflectionSerializerComponent<Reflecti
     obj = obj || {};
 
     Object.assign(obj, {
-      id:         reflection.id,
-      name:       reflection.name,
-      kind:       reflection.kind,
+      id: reflection.id,
+      name: reflection.name,
+      kind: reflection.kind,
       kindString: reflection.kindString,
-      flags:      {}                      // TODO: remove if no flags
+      notSupportedIn: reflection.notSupportedIn,
+      flags: {}                      // TODO: remove if no flags
     });
 
     if (reflection.originalName !== reflection.name) {
@@ -35,7 +36,7 @@ export class ReflectionSerializer extends ReflectionSerializerComponent<Reflecti
 
     for (let key in reflection.flags) {
       // tslint:disable-next-line:triple-equals
-      if (parseInt(key, 10) == <any> key || key === 'flags') {
+      if (parseInt(key, 10) == <any>key || key === 'flags') {
         continue;
       }
       if (reflection.flags[key]) {
@@ -44,11 +45,11 @@ export class ReflectionSerializer extends ReflectionSerializerComponent<Reflecti
     }
 
     if (reflection.decorates && reflection.decorates.length > 0) {
-      obj.decorates = reflection.decorates.map( t => this.owner.toObject(t) );
+      obj.decorates = reflection.decorates.map(t => this.owner.toObject(t));
     }
 
     if (reflection.decorators && reflection.decorators.length > 0) {
-      obj.decorators = reflection.decorators.map( d => this.owner.toObject(new DecoratorWrapper(d)) );
+      obj.decorators = reflection.decorators.map(d => this.owner.toObject(new DecoratorWrapper(d)));
     }
 
     reflection.traverse((child, property) => {
