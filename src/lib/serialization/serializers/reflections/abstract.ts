@@ -18,11 +18,12 @@ export class ReflectionSerializer extends ReflectionSerializerComponent<Reflecti
     obj = obj || {};
 
     Object.assign(obj, {
-      id:         reflection.id,
-      name:       reflection.name,
-      kind:       reflection.kind,
+      id: reflection.id,
+      name: reflection.name,
+      kind: reflection.kind,
       kindString: reflection.kindString,
-      flags:      {}                      // TODO: remove if no flags
+      notSupportedIn: reflection.notSupportedIn,
+      flags: {}                      // TODO: remove if no flags
     });
 
     if (reflection.originalName !== reflection.name) {

@@ -172,6 +172,7 @@ export class Renderer extends ChildableComponent<Application, RendererComponent>
         }
 
         try {
+            console.log(`Generating... ${page.url}`);
             writeFile(page.filename, page.contents, false);
         } catch (error) {
             this.application.logger.error('Could not write %s', page.filename);

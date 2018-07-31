@@ -57,6 +57,7 @@ export enum ReflectionKind {
     ObjectLiteral = 2097152,
     TypeAlias = 4194304,
     Event = 8388608,
+    CoveoComponent = 16777216,
 
     ClassOrInterface = Class | Interface,
     VariableOrProperty = Variable | Property,
@@ -79,7 +80,8 @@ export enum ReflectionFlag {
     ConstructorProperty = 1024,
     Abstract = 2048,
     Const = 4096,
-    Let = 8192
+    Let = 8192,
+    CoveoComponentOptions = 16384
 }
 
 const relevantFlags: ReflectionFlag[] = [
@@ -152,6 +154,8 @@ export interface ReflectionFlags extends Array<string> {
     isConst?: boolean;
 
     isLet?: boolean;
+
+    isCoveoComponentOptions?: boolean;
 }
 
 export interface DefaultValueContainer extends Reflection {
@@ -289,6 +293,10 @@ export abstract class Reflection {
      */
     cssClasses: string;
 
+    markupExample: string;
+
+    notSupportedIn: string[];
+
     /**
      * Url safe alias for this reflection.
      *
@@ -304,9 +312,9 @@ export abstract class Reflection {
     constructor(parent?: Reflection, name?: string, kind?: ReflectionKind) {
         this.id     = REFLECTION_ID++;
         this.parent = parent;
-        this.name   = name;
+        this.name = name;
         this.originalName = name;
-        this.kind   = kind;
+        this.kind = kind;
     }
 
     /**
@@ -425,6 +433,9 @@ export abstract class Reflection {
                 break;
             case ReflectionFlag.Const:
                 this.flags.isConst = value;
+                break;
+            case ReflectionFlag.CoveoComponentOptions:
+                this.flags.isCoveoComponentOptions = value;
                 break;
         }
     }
@@ -559,7 +570,7 @@ export abstract class Reflection {
             name:       this.name,
             kind:       this.kind,
             kindString: this.kindString,
-            flags:      {}
+            flags: {}
         };
 
         if (this.originalName !== this.name) {
