@@ -163,7 +163,6 @@ export class Renderer extends ChildableComponent<Application, RendererComponent>
             return false;
         }
 
-
         page.template = page.template || this.theme.resources.templates.getResource(page.templateName).getTemplate();
         page.contents = page.template(page);
 
@@ -173,7 +172,7 @@ export class Renderer extends ChildableComponent<Application, RendererComponent>
         }
 
         try {
-            console.log(`Generating... ${page.url}`)
+            console.log(`Generating... ${page.url}`);
             writeFile(page.filename, page.contents, false);
         } catch (error) {
             this.application.logger.error('Could not write %s', page.filename);

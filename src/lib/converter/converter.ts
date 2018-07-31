@@ -316,14 +316,14 @@ export class Converter extends ChildableComponent<Application, ConverterComponen
         }
 
         context.visitStack = oldVisitStack;
-        var comment = getRawComment(node);
+        const comment = getRawComment(node);
 
-        if (result && comment != null && comment.indexOf('@notSupportedIn') != -1) {
-            var tagRegex = /@(?:notSupportedIn)\s*((?:[\w]+, )*[\w]+)/g;
+        if (result && comment !== null && comment.indexOf('@notSupportedIn') !== -1) {
+            const tagRegex = /@(?:notSupportedIn)\s*((?:[\w]+, )*[\w]+)/g;
 
             result.comment = parseComment(comment.replace(tagRegex, ''));
 
-            var tag = tagRegex.exec(comment);
+            const tag = tagRegex.exec(comment);
 
             if (!result.comment.tags) {
                 result.comment.tags = [];
@@ -332,24 +332,24 @@ export class Converter extends ChildableComponent<Application, ConverterComponen
             let tagValue = tag[1];
             const tagValueInfo = this.application.notSupportedFeaturesConfig[tagValue];
             if (tagValueInfo) {
-                tagValue = `<a href="${tagValueInfo.link}">${tagValueInfo.name}</a>`
+                tagValue = `<a href="${tagValueInfo.link}">${tagValueInfo.name}</a>`;
             }
             result.comment.tags.push(new CommentTag('not supported in', '', tagValue));
             result.notSupportedIn = tag[1].split(/,\s?/);
         }
 
-        if (result && comment != null && comment.indexOf('@componentOptions') != -1) {
+        if (result && comment !== null && comment.indexOf('@componentOptions') !== -1) {
             result.setFlag(ReflectionFlag.CoveoComponentOptions, true);
         }
 
         if (result && result instanceof DeclarationReflection) {
-            var declarationReflection: DeclarationReflection = <DeclarationReflection>result;
+            let declarationReflection: DeclarationReflection = <DeclarationReflection> result;
             if (declarationReflection.extendedTypes) {
                 declarationReflection.extendedTypes.forEach((type) => {
-                    if (type.toString().toLowerCase() == 'component') {
+                    if (type.toString().toLowerCase() === 'component') {
                         result.kind = ReflectionKind.CoveoComponent;
                     }
-                })
+                });
             }
 
             if (declarationReflection.implementedTypes) {
@@ -357,10 +357,9 @@ export class Converter extends ChildableComponent<Application, ConverterComponen
                     if (impl.toString().toLowerCase().indexOf('icomponentbindings') >= 0) {
                         result.kind = ReflectionKind.CoveoComponent;
                     }
-                })
+                });
             }
         }
-
 
         return result;
     }
@@ -404,9 +403,9 @@ export class Converter extends ChildableComponent<Application, ConverterComponen
     private compile(context: Context): ReadonlyArray<ts.Diagnostic> {
         const program = context.program;
 
-        const appDirectory = this.compilerHost.currentDirectory;        
+        const appDirectory = this.compilerHost.currentDirectory;
         program.getSourceFiles().forEach((sourceFile) => {
-            if(!Path.isAbsolute(sourceFile.fileName)) {
+            if (!Path.isAbsolute(sourceFile.fileName)) {
               sourceFile.fileName = normalizePath(_ts.normalizeSlashes(Path.join(appDirectory, sourceFile.fileName)));
             }
             this.convertNode(context, sourceFile);

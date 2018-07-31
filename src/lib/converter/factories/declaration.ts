@@ -31,12 +31,11 @@ export function createDeclaration(context: Context, node: ts.Node, kind: Reflect
         throw new Error('Expected container reflection.');
     }
 
-    if(kind != ReflectionKind.Module && kind != ReflectionKind.ExternalModule) {
-        if (getRawComment(node) == '' || getRawComment(node) == null) {
+    if (kind !== ReflectionKind.Module && kind !== ReflectionKind.ExternalModule) {
+        if (getRawComment(node) === '' || getRawComment(node) === null) {
             return null;
         }
     }
-
 
     // Ensure we have a name for the reflection
     if (!name) {

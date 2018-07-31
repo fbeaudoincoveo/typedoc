@@ -63,11 +63,7 @@ module.exports = function (grunt) {
                 }
             }
         },
-<<<<<<< HEAD
         copy:  {
-=======
-        copy: {
->>>>>>> coveo
             staticTestFiles: {
                 expand: true,
                 cwd: 'src',
@@ -108,13 +104,8 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-tslint');
     grunt.loadNpmTasks('grunt-mocha-istanbul');
 
-<<<<<<< HEAD
     grunt.registerTask('default', ['tslint', 'ts:typedoc', 'string-replace:version']);
-    grunt.registerTask('build_and_test', ['default', 'specs', 'copy', 'mocha_istanbul:coverage']);
-=======
-    grunt.registerTask('default', ['ts:typedoc', 'string-replace:version']);
     grunt.registerTask('build_and_test', ['default'/*, 'specs', 'copy', 'mocha_istanbul:coverage'*/]);
->>>>>>> coveo
     grunt.registerTask('specs', ['clean:specsBefore', 'build-specs', 'clean:specsAfter']);
 
     grunt.registerTask('build-specs', function () {
