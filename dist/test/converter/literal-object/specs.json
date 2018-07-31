@@ -1,0 +1,68 @@
+{
+  "id": 0,
+  "name": "typedoc",
+  "kind": 0,
+  "flags": {},
+  "children": [
+    {
+      "id": 1,
+      "name": "\"literal-object\"",
+      "kind": 1,
+      "kindString": "External module",
+      "flags": {
+        "isExported": true
+      },
+      "originalName": "%BASE%/literal-object/literal-object.ts",
+      "children": [
+        {
+          "id": 2,
+          "name": "objectLiteral",
+          "kind": 2097152,
+          "kindString": "Object literal",
+          "flags": {
+            "isConst": true
+          },
+          "comment": {
+            "shortText": "An object literal."
+          },
+          "sources": [
+            {
+              "fileName": "literal-object.ts",
+              "line": 4,
+              "character": 19
+            }
+          ],
+          "type": {
+            "type": "intrinsic",
+            "name": "object"
+          }
+        }
+      ],
+      "groups": [
+        {
+          "title": "Object literals",
+          "kind": 2097152,
+          "children": [
+            2
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "fileName": "literal-object.ts",
+          "line": 1,
+          "character": 0
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "title": "External modules",
+      "kind": 1,
+      "children": [
+        1
+      ]
+    }
+  ]
+}
