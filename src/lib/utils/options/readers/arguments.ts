@@ -58,7 +58,11 @@ export class ArgumentsReader extends OptionsComponent {
                 files.push(arg);
             }
         }
+<<<<<<< HEAD
         if (files && files.length > 0) {
+=======
+        if (files) {
+>>>>>>> coveo
             event.inputFiles = files;
         }
     }

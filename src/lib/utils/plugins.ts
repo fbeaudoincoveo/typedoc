@@ -6,7 +6,11 @@ import { Application } from '../application';
 import { AbstractComponent, Component, Option } from './component';
 import { ParameterType } from './options/declaration';
 
+<<<<<<< HEAD
 @Component({ name: 'plugin-host', internal: true })
+=======
+@Component({name: 'plugin-host', internal: true})
+>>>>>>> coveo
 export class PluginHost extends AbstractComponent<Application> {
     @Option({
         name: 'plugin',
@@ -42,9 +46,15 @@ export class PluginHost extends AbstractComponent<Application> {
             try {
                 const instance = require(plugin);
                 const initFunction = typeof instance.load === 'function'
+<<<<<<< HEAD
                     ? instance.load
                     : instance                // support legacy plugins
                     ;
+=======
+                  ? instance.load
+                  : instance                // support legacy plugins
+                ;
+>>>>>>> coveo
                 if (typeof initFunction === 'function') {
                     instance(this);
                     logger.write('Loaded plugin %s', plugin);
@@ -76,7 +86,11 @@ export class PluginHost extends AbstractComponent<Application> {
             let path = process.cwd(), previous: string;
             do {
                 const modules = Path.join(path, 'node_modules');
+<<<<<<< HEAD
                 if (FS.existsSync(modules) && FS.statSync(modules).isDirectory()) {
+=======
+                if (FS.existsSync(modules) && FS.lstatSync(modules).isDirectory()) {
+>>>>>>> coveo
                     discoverModules(modules);
                 }
 
@@ -89,6 +103,7 @@ export class PluginHost extends AbstractComponent<Application> {
          * Scan the given `node_modules` directory for TypeDoc plugins.
          */
         function discoverModules(basePath: string) {
+<<<<<<< HEAD
             const candidates: string[] = [];
             FS.readdirSync(basePath).forEach((name) => {
                 const dir = Path.join(basePath, name);
@@ -101,6 +116,11 @@ export class PluginHost extends AbstractComponent<Application> {
             });
             candidates.forEach((name) => {
                 const infoFile = Path.join(basePath, name, 'package.json');
+=======
+            FS.readdirSync(basePath).forEach((name) => {
+                const dir = Path.join(basePath, name);
+                const infoFile = Path.join(dir, 'package.json');
+>>>>>>> coveo
                 if (!FS.existsSync(infoFile)) {
                     return;
                 }

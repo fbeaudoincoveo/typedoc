@@ -5,6 +5,8 @@ import { Component, ConverterComponent } from '../components';
 import { Converter } from '../converter';
 import { Context } from '../context';
 
+const camelCaseToHyphenRegex = /([A-Z])|\W+(\w)/g;
+
 /**
  * A handler that sorts and groups the found reflections in the resolving phase.
  *
@@ -24,15 +26,15 @@ export class GroupPlugin extends ConverterComponent {
         ReflectionKind.Class,
         ReflectionKind.Interface,
         ReflectionKind.TypeAlias,
+        ReflectionKind.Method,
 
-        ReflectionKind.Constructor,
         ReflectionKind.Event,
         ReflectionKind.Property,
         ReflectionKind.Variable,
         ReflectionKind.Function,
         ReflectionKind.Accessor,
-        ReflectionKind.Method,
         ReflectionKind.ObjectLiteral,
+        ReflectionKind.Constructor,
 
         ReflectionKind.Parameter,
         ReflectionKind.TypeParameter,
@@ -63,7 +65,7 @@ export class GroupPlugin extends ConverterComponent {
         plurals[ReflectionKind.Property]   = 'Properties';
         plurals[ReflectionKind.Enum]       = 'Enumerations';
         plurals[ReflectionKind.EnumMember] = 'Enumeration members';
-        plurals[ReflectionKind.TypeAlias]  = 'Type aliases';
+        plurals[ReflectionKind.TypeAlias] = 'Type aliases';
         return plurals;
     })();
 
@@ -72,7 +74,7 @@ export class GroupPlugin extends ConverterComponent {
      */
     initialize() {
         this.listenTo(this.owner, {
-            [Converter.EVENT_RESOLVE]:     this.onResolve,
+            [Converter.EVENT_RESOLVE]: this.onResolve,
             [Converter.EVENT_RESOLVE_END]: this.onEndResolve
         });
     }
@@ -146,7 +148,32 @@ export class GroupPlugin extends ConverterComponent {
             }
 
             const group = new ReflectionGroup(GroupPlugin.getKindPlural(child.kind), child.kind);
+            if (child.flags.isCoveoComponentOptions) {
+                group.title = 'Component Options';
+            }
             group.children.push(child);
+            if (group.title == 'Component Options') {
+                if (group.children[0]['children']) {
+                    group.children = group.children[0]['children'];
+                    group.children.forEach((child) => {
+                        if (child.name) {
+                            if (child['type']) {
+                                let valuesExamples = GroupPlugin.getMarkupValueExampleFromType(child['type'].name, child);
+                                child.markupExample = valuesExamples.map((example) => {
+                                    return `data-${child.name.replace(camelCaseToHyphenRegex, '-$1$2').toLowerCase()}='${example}'`;
+                                }).join('\n');
+                                if (child.markupExample == '') {
+                                    child.markupExample = null;
+                                }
+                            }
+                        }
+                        if (child.comment.hasTag('notsupportedin')) {
+                            var tag = child.comment.getTag('notsupportedin');
+                            tag.tagName = 'Not supported in';
+                        }
+                    })
+                }
+            }
             groups.push(group);
         });
 
@@ -154,9 +181,9 @@ export class GroupPlugin extends ConverterComponent {
             let someExported = false, allInherited = true, allPrivate = true, allProtected = true, allExternal = true;
             group.children.forEach((child) => {
                 someExported = child.flags.isExported || someExported;
-                allPrivate   = child.flags.isPrivate  && allPrivate;
+                allPrivate = child.flags.isPrivate && allPrivate;
                 allProtected = (child.flags.isPrivate || child.flags.isProtected) && allProtected;
-                allExternal  = child.flags.isExternal && allExternal;
+                allExternal = child.flags.isExternal && allExternal;
 
                 if (child instanceof DeclarationReflection) {
                     allInherited = child.inheritedFrom && allInherited;
@@ -167,12 +194,66 @@ export class GroupPlugin extends ConverterComponent {
 
             group.someChildrenAreExported = someExported;
             group.allChildrenAreInherited = allInherited;
-            group.allChildrenArePrivate   = allPrivate;
+            group.allChildrenArePrivate = allPrivate;
             group.allChildrenAreProtectedOrPrivate = allProtected;
-            group.allChildrenAreExternal  = allExternal;
+            group.allChildrenAreExternal = allExternal;
         });
 
         return groups;
+    }
+
+    private static getMarkupValueExampleFromType(name: string, ref: Reflection): string[] {
+        let ret = [];
+        if (ref && ref['type'] && ref['type'].constructor.name.toLowerCase() == 'uniontype') {
+            ret = GroupPlugin.getMarkupValueExampleForUnionType(ref);
+        } else if (name) {
+            switch (name.toLowerCase()) {
+                case 'boolean':
+                    ret = ['true', 'false'];
+                    break;
+                case 'string':
+                    ret = ['foo'];
+                    break;
+                case 'ifieldoption':
+                    ret = ['@foo'];
+                    break;
+                case 'number':
+                    ret = ['10'];
+                    break;
+                case 'array':
+                    if (ref['type'] && ref['type'].typeArguments && ref['type'].typeArguments[0]) {
+                        ret = GroupPlugin.getMarkupValueExampleFromType(ref['type'].typeArguments[0].name, ref);
+                        ret = ret.map((example) => {
+                            return `${example},${example}2`;
+                        })
+                    }
+                    break;
+            }
+        }
+        return ret;
+    }
+
+    private static getMarkupValueExampleForUnionType = function (ref) {
+        var ret = [];
+        if (ref && ref.type && ref.type.types[0] && ref.type.types[0].typeArguments && ref.type.types[0].typeArguments[0]) {
+            if (ref.type.types[0].typeArguments[0].constructor.name.toLowerCase() == 'uniontype') {
+                ret = ref.type.types[0].typeArguments[0].types.map(function (type) {
+                    return type.value;
+                });
+                if (ref.type.types[0].name && ref.type.types[0].name.toLowerCase() == 'array') {
+                    var copy = [];
+                    for (var i = 0; i < ret.length; i++) {
+                        copy[i] = ret.slice(0, i + 1).join(',');
+                    }
+                    ret = copy;
+                }
+                ret = ret.slice(0, 4);
+            } else {
+                ret = GroupPlugin.getMarkupValueExampleFromType(ref.type.types[0].typeArguments[0].name, undefined);
+            }
+        }
+        return ret;
+
     }
 
     /**

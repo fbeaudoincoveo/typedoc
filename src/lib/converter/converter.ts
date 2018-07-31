@@ -1,6 +1,7 @@
 import * as ts from 'typescript';
 import * as _ts from '../ts-internal';
 import * as _ from 'lodash';
+import * as Path from 'path';
 
 import { Application } from '../application';
 import { ParameterType } from '../utils/options/declaration';
@@ -10,6 +11,9 @@ import { ConverterComponent, ConverterNodeComponent, ConverterTypeComponent, Typ
 import { CompilerHost } from './utils/compiler-host';
 import { Component, Option, ChildableComponent, ComponentClass } from '../utils/component';
 import { normalizePath } from '../utils/fs';
+import { getRawComment, parseComment } from './factories/comment';
+import { CommentTag } from '../models/comments';
+import { ReflectionFlag, DeclarationReflection, ReflectionKind } from '../..';
 
 /**
  * Result structure of the [[Converter.convert]] method.
@@ -81,7 +85,7 @@ export class Converter extends ChildableComponent<Application, ConverterComponen
     })
     excludeProtected: boolean;
 
-    private compilerHost: CompilerHost;
+    public compilerHost: CompilerHost;
 
     private nodeConverters: {[syntaxKind: number]: ConverterNodeComponent<ts.Node>};
 
@@ -312,6 +316,52 @@ export class Converter extends ChildableComponent<Application, ConverterComponen
         }
 
         context.visitStack = oldVisitStack;
+        var comment = getRawComment(node);
+
+        if (result && comment != null && comment.indexOf('@notSupportedIn') != -1) {
+            var tagRegex = /@(?:notSupportedIn)\s*((?:[\w]+, )*[\w]+)/g;
+
+            result.comment = parseComment(comment.replace(tagRegex, ''));
+
+            var tag = tagRegex.exec(comment);
+
+            if (!result.comment.tags) {
+                result.comment.tags = [];
+            }
+
+            let tagValue = tag[1];
+            const tagValueInfo = this.application.notSupportedFeaturesConfig[tagValue];
+            if (tagValueInfo) {
+                tagValue = `<a href="${tagValueInfo.link}">${tagValueInfo.name}</a>`
+            }
+            result.comment.tags.push(new CommentTag('not supported in', '', tagValue));
+            result.notSupportedIn = tag[1].split(/,\s?/);
+        }
+
+        if (result && comment != null && comment.indexOf('@componentOptions') != -1) {
+            result.setFlag(ReflectionFlag.CoveoComponentOptions, true);
+        }
+
+        if (result && result instanceof DeclarationReflection) {
+            var declarationReflection: DeclarationReflection = <DeclarationReflection>result;
+            if (declarationReflection.extendedTypes) {
+                declarationReflection.extendedTypes.forEach((type) => {
+                    if (type.toString().toLowerCase() == 'component') {
+                        result.kind = ReflectionKind.CoveoComponent;
+                    }
+                })
+            }
+
+            if (declarationReflection.implementedTypes) {
+                declarationReflection.implementedTypes.forEach((impl) => {
+                    if (impl.toString().toLowerCase().indexOf('icomponentbindings') >= 0) {
+                        result.kind = ReflectionKind.CoveoComponent;
+                    }
+                })
+            }
+        }
+
+
         return result;
     }
 
@@ -354,7 +404,11 @@ export class Converter extends ChildableComponent<Application, ConverterComponen
     private compile(context: Context): ReadonlyArray<ts.Diagnostic> {
         const program = context.program;
 
+        const appDirectory = this.compilerHost.currentDirectory;        
         program.getSourceFiles().forEach((sourceFile) => {
+            if(!Path.isAbsolute(sourceFile.fileName)) {
+              sourceFile.fileName = normalizePath(_ts.normalizeSlashes(Path.join(appDirectory, sourceFile.fileName)));
+            }
             this.convertNode(context, sourceFile);
         });
 

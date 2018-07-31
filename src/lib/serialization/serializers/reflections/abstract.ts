@@ -4,7 +4,11 @@ import { Reflection, TraverseProperty } from '../../../models';
 import { ReflectionSerializerComponent } from '../../components';
 import { DecoratorWrapper } from '../models';
 
+<<<<<<< HEAD
 @Component({name: 'serializer:reflection'})
+=======
+@Component({ name: 'serializer:reflection' })
+>>>>>>> coveo
 export class ReflectionSerializer extends ReflectionSerializerComponent<Reflection> {
 
   static PRIORITY = 1000;
@@ -18,11 +22,20 @@ export class ReflectionSerializer extends ReflectionSerializerComponent<Reflecti
     obj = obj || {};
 
     Object.assign(obj, {
+<<<<<<< HEAD
       id:         reflection.id,
       name:       reflection.name,
       kind:       reflection.kind,
       kindString: reflection.kindString,
       flags:      {}                      // TODO: remove if no flags
+=======
+      id: reflection.id,
+      name: reflection.name,
+      kind: reflection.kind,
+      kindString: reflection.kindString,
+      notSupportedIn: reflection.notSupportedIn,
+      flags: {}                      // TODO: remove if no flags
+>>>>>>> coveo
     });
 
     if (reflection.originalName !== reflection.name) {
@@ -35,7 +48,11 @@ export class ReflectionSerializer extends ReflectionSerializerComponent<Reflecti
 
     for (let key in reflection.flags) {
       // tslint:disable-next-line:triple-equals
+<<<<<<< HEAD
       if (parseInt(key, 10) == <any> key || key === 'flags') {
+=======
+      if (parseInt(key, 10) == <any>key || key === 'flags') {
+>>>>>>> coveo
         continue;
       }
       if (reflection.flags[key]) {
@@ -44,11 +61,19 @@ export class ReflectionSerializer extends ReflectionSerializerComponent<Reflecti
     }
 
     if (reflection.decorates && reflection.decorates.length > 0) {
+<<<<<<< HEAD
       obj.decorates = reflection.decorates.map( t => this.owner.toObject(t) );
     }
 
     if (reflection.decorators && reflection.decorators.length > 0) {
       obj.decorators = reflection.decorators.map( d => this.owner.toObject(new DecoratorWrapper(d)) );
+=======
+      obj.decorates = reflection.decorates.map(t => this.owner.toObject(t));
+    }
+
+    if (reflection.decorators && reflection.decorators.length > 0) {
+      obj.decorators = reflection.decorators.map(d => this.owner.toObject(new DecoratorWrapper(d)));
+>>>>>>> coveo
     }
 
     reflection.traverse((child, property) => {

@@ -1,3 +1,7 @@
+import { LinkParser } from "./utils/LinkParser";
+var marked = require("marked");
+var highlight = require("highlight.js");
+
 /**
  * The TypeDoc main module and namespace.
  *
@@ -61,6 +65,8 @@ export class Application extends ChildableComponent<Application, AbstractCompone
 
     plugins: PluginHost;
 
+    notSupportedFeaturesConfig: {};
+
     @Option({
         name: 'logger',
         help: 'Specify the logger that should be used, \'none\' or \'console\'',
@@ -104,6 +110,8 @@ export class Application extends ChildableComponent<Application, AbstractCompone
         this.options   = this.addComponent('options', Options);
 
         this.bootstrap(options);
+
+        this.notSupportedFeaturesConfig = (<any>options).notSupportedFeaturesConfig
     }
 
     /**
@@ -221,7 +229,7 @@ export class Application extends ChildableComponent<Application, AbstractCompone
      * @param out  The path and file name of the target file.
      * @returns TRUE if the json file could be written successfully, otherwise FALSE.
      */
-    public generateJson(input: any, out: string): boolean {
+    public generateJson(input: any, out: string, linkPrefix?: string): boolean {
         const project = input instanceof ProjectReflection ? input : this.convert(input);
         if (!project) {
             return false;
@@ -230,10 +238,117 @@ export class Application extends ChildableComponent<Application, AbstractCompone
         out = Path.resolve(out);
         const eventData = { outputDirectory: Path.dirname(out), outputFile: Path.basename(out) };
         const ser = this.serializer.projectToObject(project, { begin: eventData, end: eventData });
-        writeFile(out, JSON.stringify(ser, null, '\t'), false);
+        const prettifiedJson = this.prettifyJson(ser, project, linkPrefix)
+        writeFile(out, JSON.stringify(prettifiedJson, null, '\t'), false);
         this.logger.success('JSON written to %s', out);
 
         return true;
+    }
+
+    private prettifyJson(obj: any, project: ProjectReflection, linkPrefix?: string) {
+        let getHighlighted = function (text, lang) {
+            try {
+                if (lang) {
+                    return highlight.highlight(lang, text).value;
+                } else {
+                    return highlight.highlightAuto(text).value;
+                }
+            } catch (error) {
+                this.application.logger.warn(error.message);
+                return text;
+            }
+        };
+        marked.setOptions({
+            highlight: function (code, lang) {
+                return getHighlighted(code, lang);
+            }
+        });
+        let linkParser: LinkParser = new LinkParser(project, linkPrefix);
+        let nodeList = [];
+        let visitChildren = (json, path) => {
+            if (json != null) {
+                let comment = json.comment;
+                if (json.name == project.name) {
+                    json.name = '';
+                }
+                if (comment && comment.shortText != null && json.name != project.name) {
+                    let markedText = marked(comment.shortText + (comment.text ? '\n' + comment.text : ''));
+                    let type = '';
+
+                    let constrainedValues = this.generateConstrainedValues(json);
+                    let miscAttributes = this.generateMiscAttributes(json);
+                    if (json.type && json.type.name) {
+                        type = json.type.name;
+                    }
+                    let notSupportedInValues = json.notSupportedIn ? json.notSupportedIn : '';
+                    nodeList.push({
+                        name: path + json.name,
+                        notSupportedIn: notSupportedInValues,
+                        comment: linkParser.parseMarkdown(markedText),
+                        type,
+                        constrainedValues,
+                        miscAttributes
+                    });
+                }
+                if (json.children != null && json.children.length > 0) {
+                    let newPath = path + json.name;
+
+                    // when using relative path and entering a new module, 
+                    // the first child is an empty node where the name is the path.
+                    if (newPath.match('^".*"$') && json.comment == null) {
+                        newPath = '';
+                    }
+
+                    if (newPath != '') {
+                        newPath += '.';
+                    }
+                    json.children.forEach(child => visitChildren(child, newPath));
+                }
+            }
+        };
+        visitChildren(obj, '');
+        return nodeList;
+    }
+
+    private generateConstrainedValues(str: any) {
+        let constrainedValues = [];
+
+        if (str && str['type'] && str['type'].type == 'union') {
+            if (str.type.types[1] && str.type.types[1].elementType && str.type.types[1].elementType.types) {
+                constrainedValues = str.type.types[1].elementType.types.map(function (type) {
+                    return type.value;
+                });
+                if (str.type.types[0].type && str.type.types[0].type.toLowerCase() == 'array') {
+                    var copy = [];
+                    for (var i = 0; i < constrainedValues.length; i++) {
+                        copy[i] = constrainedValues.slice(0, i + 1).join(',');
+                    }
+                    constrainedValues = copy;
+                }
+                constrainedValues = constrainedValues.slice(0, 4);
+            }
+        }
+
+        return constrainedValues;
+    }
+
+    private generateMiscAttributes(str: any) {
+        var otherMiscAttributes = {};
+        if (str.defaultValue) {
+            var required = str.defaultValue.match(/required\s*:\s([a-zA-Z]+)\s*/);
+            if (required) {
+                otherMiscAttributes['required'] = required[1];
+            }
+            var defaultOptionValue = str.defaultValue.match(/defaultValue\s*:\s([a-zA-Z0-9()'"]+)\s*/);
+            if (defaultOptionValue) {
+                defaultOptionValue[1] = defaultOptionValue[1].replace('l(', '');
+                defaultOptionValue[1] = defaultOptionValue[1].replace(')', '');
+                defaultOptionValue[1] = defaultOptionValue[1].replace(')', '');
+                defaultOptionValue[1] = defaultOptionValue[1].replace(/'/g, '');
+                otherMiscAttributes['defaultValue'] = defaultOptionValue[1];
+            }
+        }
+        return otherMiscAttributes;
     }
 
     /**

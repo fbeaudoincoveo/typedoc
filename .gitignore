@@ -16,4 +16,8 @@ yarn.lock
 /node_modules/
 /typescript/
 /coverage/
+<<<<<<< HEAD
 /dist/
+=======
+
+>>>>>>> coveo
