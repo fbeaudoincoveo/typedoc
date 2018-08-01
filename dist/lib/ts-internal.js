@@ -51,10 +51,10 @@ function isBindingPattern(node) {
     return tsany.isBindingPattern.apply(this, arguments);
 }
 exports.isBindingPattern = isBindingPattern;
-function getClassExtendsHeritageClauseElement(node) {
-    return tsany.getClassExtendsHeritageClauseElement.apply(this, arguments);
+function getClassExtendsHeritageElement(node) {
+    return tsany.getClassExtendsHeritageElement.apply(this, arguments);
 }
-exports.getClassExtendsHeritageClauseElement = getClassExtendsHeritageClauseElement;
+exports.getClassExtendsHeritageElement = getClassExtendsHeritageElement;
 function getClassImplementsHeritageClauseElements(node) {
     return tsany.getClassImplementsHeritageClauseElements.apply(this, arguments);
 }

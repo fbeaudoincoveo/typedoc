@@ -59,7 +59,7 @@ var ClassConverter = (function (_super) {
                     }
                 });
             }
-            var baseType = _ts.getClassExtendsHeritageClauseElement(node);
+            var baseType = _ts.getClassExtendsHeritageElement(node);
             if (baseType) {
                 var type = context.getTypeAtLocation(baseType);
                 if (!context.isInherit) {
