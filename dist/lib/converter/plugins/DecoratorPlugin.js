@@ -1,8 +1,11 @@
 "use strict";
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -27,13 +30,13 @@ var DecoratorPlugin = (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     DecoratorPlugin.prototype.initialize = function () {
+        var _a;
         this.listenTo(this.owner, (_a = {},
             _a[converter_1.Converter.EVENT_BEGIN] = this.onBegin,
             _a[converter_1.Converter.EVENT_CREATE_DECLARATION] = this.onDeclaration,
             _a[converter_1.Converter.EVENT_CREATE_PARAMETER] = this.onDeclaration,
             _a[converter_1.Converter.EVENT_RESOLVE] = this.onBeginResolve,
             _a));
-        var _a;
     };
     DecoratorPlugin.prototype.extractArguments = function (args, signature) {
         var result = {};

@@ -7,7 +7,7 @@ export declare class OptionsComponent extends AbstractComponent<Options> {
 }
 export declare enum OptionsReadMode {
     Prefetch = 0,
-    Fetch = 1,
+    Fetch = 1
 }
 export interface OptionsReadResult {
     hasErrors: boolean;

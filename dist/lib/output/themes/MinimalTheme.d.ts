@@ -7,6 +7,6 @@ export declare class MinimalTheme extends DefaultTheme {
     constructor(renderer: Renderer, basePath: string);
     isOutputDirectory(path: string): boolean;
     getUrls(project: ProjectReflection): UrlMapping[];
-    private onRendererBeginPage(page);
+    private onRendererBeginPage;
     static buildToc(model: DeclarationReflection, parent: NavigationItem): void;
 }

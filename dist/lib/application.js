@@ -1,8 +1,11 @@
 "use strict";
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -263,6 +266,7 @@ var Application = (function (_super) {
             ''
         ].join(typescript.sys.newLine);
     };
+    var Application_1;
     Application.VERSION = '0.11.1';
     __decorate([
         component_1.Option({
@@ -290,7 +294,6 @@ var Application = (function (_super) {
         component_1.Component({ name: 'application', internal: true })
     ], Application);
     return Application;
-    var Application_1;
 }(component_1.ChildableComponent));
 exports.Application = Application;
 //# sourceMappingURL=application.js.map

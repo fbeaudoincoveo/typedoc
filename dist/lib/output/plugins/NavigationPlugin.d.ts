@@ -3,6 +3,6 @@ import { NavigationItem } from '../models/NavigationItem';
 export declare class NavigationPlugin extends RendererComponent {
     navigation: NavigationItem;
     initialize(): void;
-    private onBeginRenderer(event);
-    private onBeginPage(page);
+    private onBeginRenderer;
+    private onBeginPage;
 }

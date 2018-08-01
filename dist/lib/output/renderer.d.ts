@@ -14,9 +14,9 @@ export declare class Renderer extends ChildableComponent<Application, RendererCo
     toc: string[];
     initialize(): void;
     render(project: ProjectReflection, outputDirectory: string): void;
-    private renderDocument(page);
-    private prepareTheme();
-    private prepareOutputDirectory(directory);
+    private renderDocument;
+    private prepareTheme;
+    private prepareOutputDirectory;
     static getThemeDirectory(): string;
     static getDefaultTheme(): string;
 }

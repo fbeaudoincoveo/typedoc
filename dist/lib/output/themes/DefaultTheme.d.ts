@@ -18,7 +18,7 @@ export declare class DefaultTheme extends Theme {
     getUrls(project: ProjectReflection): UrlMapping[];
     getEntryPoint(project: ProjectReflection): ContainerReflection;
     getNavigation(project: ProjectReflection): NavigationItem;
-    private onRendererBegin(event);
+    private onRendererBegin;
     static getUrl(reflection: Reflection, relative?: Reflection, separator?: string): string;
     static getMapping(reflection: DeclarationReflection): TemplateMapping;
     static buildUrls(reflection: DeclarationReflection, urls: UrlMapping[]): UrlMapping[];

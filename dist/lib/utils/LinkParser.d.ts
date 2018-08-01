@@ -5,8 +5,8 @@ export declare class LinkParser {
     private urlPrefix;
     private linkPrefix;
     constructor(project: ProjectReflection, linkPrefix?: string);
-    private replaceInlineTags(text);
-    private buildLink(original, target, caption, monospace?);
+    private replaceInlineTags;
+    private buildLink;
     parseMarkdown(text: string): string;
-    private splitLinkText(text);
+    private splitLinkText;
 }

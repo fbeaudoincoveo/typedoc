@@ -1,6 +1,6 @@
 export declare enum ParameterHint {
     File = 0,
-    Directory = 1,
+    Directory = 1
 }
 export declare enum ParameterType {
     String = 0,
@@ -8,11 +8,11 @@ export declare enum ParameterType {
     Boolean = 2,
     Map = 3,
     Mixed = 4,
-    Array = 5,
+    Array = 5
 }
 export declare enum ParameterScope {
     TypeDoc = 0,
-    TypeScript = 1,
+    TypeScript = 1
 }
 export interface DeclarationOption {
     name: string;

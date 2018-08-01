@@ -34,16 +34,16 @@ export declare class Converter extends ChildableComponent<Application, Converter
     static EVENT_RESOLVE_END: string;
     initialize(): void;
     addComponent<T extends ConverterComponent & Component>(name: string, componentClass: T | ComponentClass<T>): T;
-    private addNodeConverter(converter);
-    private addTypeConverter(converter);
+    private addNodeConverter;
+    private addTypeConverter;
     removeComponent(name: string): ConverterComponent;
-    private removeNodeConverter(converter);
-    private removeTypeConverter(converter);
+    private removeNodeConverter;
+    private removeTypeConverter;
     removeAllComponents(): void;
     convert(fileNames: string[]): ConverterResult;
     convertNode(context: Context, node: ts.Node): Reflection;
     convertType(context: Context, node?: ts.Node, type?: ts.Type): Type;
-    private compile(context);
-    private resolve(context);
+    private compile;
+    private resolve;
     getDefaultLib(): string;
 }

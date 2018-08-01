@@ -1,8 +1,11 @@
 "use strict";
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -231,6 +234,7 @@ var Converter = (function (_super) {
     Converter.prototype.getDefaultLib = function () {
         return ts.getDefaultLibFileName(this.application.options.getCompilerOptions());
     };
+    var Converter_1;
     Converter.EVENT_BEGIN = 'begin';
     Converter.EVENT_END = 'end';
     Converter.EVENT_FILE_BEGIN = 'fileBegin';
@@ -293,7 +297,6 @@ var Converter = (function (_super) {
         component_1.Component({ name: 'converter', internal: true, childClass: components_1.ConverterComponent })
     ], Converter);
     return Converter;
-    var Converter_1;
 }(component_1.ChildableComponent));
 exports.Converter = Converter;
 //# sourceMappingURL=converter.js.map

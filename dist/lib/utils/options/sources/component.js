@@ -1,8 +1,11 @@
 "use strict";
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -24,13 +27,13 @@ var ComponentSource = (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     ComponentSource.prototype.initialize = function () {
+        var _a;
         this.knownComponents = [];
         this.addComponent(this.application);
         this.listenTo(this.application, (_a = {},
             _a[component_1.ComponentEvent.ADDED] = this.onComponentAdded,
             _a[component_1.ComponentEvent.REMOVED] = this.onComponentRemoved,
             _a));
-        var _a;
     };
     ComponentSource.prototype.addComponent = function (component) {
         var name = component.componentName;

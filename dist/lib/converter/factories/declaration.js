@@ -31,7 +31,7 @@ function createDeclaration(context, node, kind, name) {
             return null;
         }
     }
-    var modifiers = ts.getCombinedModifierFlags(node);
+    var modifiers = ts.getCombinedModifierFlags(node.symbol.valueDeclaration);
     var isExported;
     if (container.kindOf([index_1.ReflectionKind.Module, index_1.ReflectionKind.ExternalModule])) {
         isExported = false;
@@ -43,7 +43,7 @@ function createDeclaration(context, node, kind, name) {
         isExported = true;
     }
     else if (node.parent && node.parent.kind === ts.SyntaxKind.VariableDeclarationList) {
-        var parentModifiers = ts.getCombinedModifierFlags(node.parent.parent);
+        var parentModifiers = ts.getCombinedModifierFlags(node.parent.parent.symbol.valueDeclaration);
         isExported = isExported || !!(parentModifiers & ts.ModifierFlags.Export);
     }
     else {
@@ -98,7 +98,7 @@ function createDeclaration(context, node, kind, name) {
 }
 exports.createDeclaration = createDeclaration;
 function setupDeclaration(context, reflection, node) {
-    var modifiers = ts.getCombinedModifierFlags(node);
+    var modifiers = ts.getCombinedModifierFlags(node.symbol.valueDeclaration);
     reflection.setFlag(index_1.ReflectionFlag.External, context.isExternal);
     reflection.setFlag(index_1.ReflectionFlag.Protected, !!(modifiers & ts.ModifierFlags.Protected));
     reflection.setFlag(index_1.ReflectionFlag.Public, !!(modifiers & ts.ModifierFlags.Public));

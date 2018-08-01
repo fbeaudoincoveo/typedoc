@@ -17,5 +17,5 @@ export declare class Serializer extends ChildableComponent<Application, Serializ
         begin?: any;
         end?: any;
     }): any;
-    private findRoutes(value);
+    private findRoutes;
 }

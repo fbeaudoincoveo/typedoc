@@ -23,7 +23,7 @@ export declare class EventDispatcher {
     on(eventMap: EventMap, context?: any): any;
     on(eventMap: EventMap, callback?: EventCallback, context?: any, priority?: number): any;
     on(name: string, callback: EventCallback, context?: any, priority?: number): any;
-    private internalOn(name, callback, context?, priority?, listening?);
+    private internalOn;
     once(eventMap: EventMap, context?: any): any;
     once(name: string, callback: EventCallback, context?: any, priority?: any): any;
     off(): any;

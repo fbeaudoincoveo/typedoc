@@ -11,6 +11,6 @@ export declare class ReflectionGroup {
     allChildrenAreExternal: boolean;
     someChildrenAreExported: boolean;
     constructor(title: string, kind: ReflectionKind);
-    private getAllChildrenHaveOwnDocument();
+    private getAllChildrenHaveOwnDocument;
     toObject(): any;
 }

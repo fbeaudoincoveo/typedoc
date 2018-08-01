@@ -1,8 +1,11 @@
 "use strict";
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -79,6 +82,7 @@ var TypeScriptSource = (function (_super) {
         }
         this.declarations.push(param);
     };
+    var TypeScriptSource_1;
     TypeScriptSource.IGNORED = [
         'out', 'version', 'help',
         'watch', 'declaration', 'declarationDir', 'mapRoot',
@@ -88,7 +92,6 @@ var TypeScriptSource = (function (_super) {
         component_1.Component({ name: 'options:typescript' })
     ], TypeScriptSource);
     return TypeScriptSource;
-    var TypeScriptSource_1;
 }(options_1.OptionsComponent));
 exports.TypeScriptSource = TypeScriptSource;
 //# sourceMappingURL=typescript.js.map

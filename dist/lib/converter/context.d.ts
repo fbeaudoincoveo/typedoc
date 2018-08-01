@@ -32,5 +32,5 @@ export declare class Context {
     withScope(scope: Reflection, parameters: ts.NodeArray<ts.TypeParameterDeclaration>, callback: Function): void;
     withScope(scope: Reflection, parameters: ts.NodeArray<ts.TypeParameterDeclaration>, preserve: boolean, callback: Function): void;
     inherit(baseNode: ts.Node, typeArguments?: ts.NodeArray<ts.TypeNode>): Reflection;
-    private extractTypeParameters(parameters, preserve?);
+    private extractTypeParameters;
 }

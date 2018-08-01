@@ -21,7 +21,7 @@ export declare class ResourceOrigin<T extends Resource> {
     hasResource(name: string): boolean;
     getResource(name: string): T;
     getName(): string;
-    private findResources(dir?);
+    private findResources;
 }
 export declare abstract class ResourceStack<T extends Resource> {
     private isActive;
