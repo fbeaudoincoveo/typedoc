@@ -5,7 +5,7 @@ export declare const enum ExitCode {
     NoInputFiles = 2,
     NoOutput = 3,
     CompileError = 4,
-    OutputError = 5,
+    OutputError = 5
 }
 export declare class CliApplication extends Application {
     out: string;

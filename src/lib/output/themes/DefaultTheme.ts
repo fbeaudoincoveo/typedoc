@@ -65,7 +65,7 @@ export class DefaultTheme extends Theme {
         isLeaf:    false,
         directory: 'modules',
         template:  'reflection.hbs'
-    },{
+    }, {
         kind: [ReflectionKind.CoveoComponent],
         isLeaf: false,
         directory: 'components',

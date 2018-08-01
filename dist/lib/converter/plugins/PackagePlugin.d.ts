@@ -6,7 +6,7 @@ export declare class PackagePlugin extends ConverterComponent {
     private visited;
     private noReadmeFile;
     initialize(): void;
-    private onBegin(context);
-    private onBeginDocument(context, reflection, node?);
-    private onBeginResolve(context);
+    private onBegin;
+    private onBeginDocument;
+    private onBeginResolve;
 }

@@ -4,7 +4,7 @@ export declare enum LogLevel {
     Info = 1,
     Warn = 2,
     Error = 3,
-    Success = 4,
+    Success = 4
 }
 export declare class Logger {
     errorCount: number;

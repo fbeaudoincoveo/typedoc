@@ -1,8 +1,7 @@
-import * as Util from "util";
+import * as Util from 'util';
 
-
-import { Reflection } from "../models/reflections/abstract";
-import { ProjectReflection } from "../models/reflections/index";
+import { Reflection } from '../models/reflections/abstract';
+import { ProjectReflection } from '../models/reflections/index';
 
 /**
  * A plugin that builds links in markdown texts.
@@ -24,12 +23,10 @@ export class LinkParser {
   private urlPrefix: RegExp = /^(http|ftp)s?:\/\//;
   private linkPrefix: string;
 
-
   constructor(project: ProjectReflection, linkPrefix?: string) {
     this.project = project;
     this.linkPrefix = linkPrefix != null ? linkPrefix : '';
   }
-
 
   /**
    * Find symbol {@link ...} strings in text and turn into html links
@@ -40,18 +37,17 @@ export class LinkParser {
   private replaceInlineTags(text: string): string {
     let that = this;
     return text.replace(this.inlineTag, (match: string, leading: string, tagName: string, content: string): string => {
-      var split = that.splitLinkText(content);
-      var target = split.target;
-      var caption = leading || split.caption;
+      const split = that.splitLinkText(content);
+      const target = split.target;
+      const caption = leading || split.caption;
 
-      var monospace: boolean;
-      if (tagName == 'linkcode') monospace = true;
-      if (tagName == 'linkplain') monospace = false;
+      let monospace: boolean;
+      if (tagName === 'linkcode') { monospace = true; }
+      if (tagName === 'linkplain') { monospace = false; }
 
       return this.buildLink(match, target, caption, monospace);
     });
   }
-
 
   /**
    * Format a link with the given text and target.
@@ -73,7 +69,7 @@ export class LinkParser {
       if (reflection && reflection.url) {
         target = reflection.url;
       } else {
-        //console.log('Link could not be resolved : ' + original);
+        // console.log('Link could not be resolved : ' + original);
         return caption;
       }
     }
@@ -85,7 +81,6 @@ export class LinkParser {
     return Util.format('<a href="%s%s"%s>%s</a>', this.linkPrefix, target, attributes, caption);
   }
 
-
   /**
    * Triggered when [[MarkedPlugin]] parses a markdown string.
    *
@@ -95,7 +90,6 @@ export class LinkParser {
     return this.replaceInlineTags(text);
   }
 
-
   /**
    * Split the given link into text and target at first pipe or space.
    *
@@ -103,7 +97,7 @@ export class LinkParser {
    * @returns An object containing the link text and target.
    */
   private splitLinkText(text: string): { caption: string; target: string; } {
-    var splitIndex = text.indexOf('|');
+    let splitIndex = text.indexOf('|');
     if (splitIndex === -1) {
       splitIndex = text.search(/\s/);
     }

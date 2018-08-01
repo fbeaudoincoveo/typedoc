@@ -3,7 +3,7 @@ export declare class DynamicModulePlugin extends ConverterComponent {
     private basePath;
     private reflections;
     initialize(): void;
-    private onBegin(context);
-    private onDeclaration(context, reflection, node?);
-    private onBeginResolve(context);
+    private onBegin;
+    private onDeclaration;
+    private onBeginResolve;
 }

@@ -1,8 +1,11 @@
 "use strict";
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -28,11 +31,11 @@ var GroupPlugin = (function (_super) {
     }
     GroupPlugin_1 = GroupPlugin;
     GroupPlugin.prototype.initialize = function () {
+        var _a;
         this.listenTo(this.owner, (_a = {},
             _a[converter_1.Converter.EVENT_RESOLVE] = this.onResolve,
             _a[converter_1.Converter.EVENT_RESOLVE_END] = this.onEndResolve,
             _a));
-        var _a;
     };
     GroupPlugin.prototype.onResolve = function (context, reflection) {
         reflection.kindString = GroupPlugin_1.getKindSingular(reflection.kind);
@@ -80,7 +83,7 @@ var GroupPlugin = (function (_super) {
                 group.title = 'Component Options';
             }
             group.children.push(child);
-            if (group.title == 'Component Options') {
+            if (group.title === 'Component Options') {
                 if (group.children[0]['children']) {
                     group.children = group.children[0]['children'];
                     group.children.forEach(function (child) {
@@ -90,7 +93,7 @@ var GroupPlugin = (function (_super) {
                                 child.markupExample = valuesExamples.map(function (example) {
                                     return "data-" + child.name.replace(camelCaseToHyphenRegex, '-$1$2').toLowerCase() + "='" + example + "'";
                                 }).join('\n');
-                                if (child.markupExample == '') {
+                                if (child.markupExample === '') {
                                     child.markupExample = null;
                                 }
                             }
@@ -128,7 +131,7 @@ var GroupPlugin = (function (_super) {
     };
     GroupPlugin.getMarkupValueExampleFromType = function (name, ref) {
         var ret = [];
-        if (ref && ref['type'] && ref['type'].constructor.name.toLowerCase() == 'uniontype') {
+        if (ref && ref['type'] && ref['type'].constructor.name.toLowerCase() === 'uniontype') {
             ret = GroupPlugin_1.getMarkupValueExampleForUnionType(ref);
         }
         else if (name) {
@@ -197,6 +200,7 @@ var GroupPlugin = (function (_super) {
             return aWeight - bWeight;
         }
     };
+    var GroupPlugin_1;
     GroupPlugin.WEIGHTS = [
         index_1.ReflectionKind.Global,
         index_1.ReflectionKind.ExternalModule,
@@ -241,11 +245,11 @@ var GroupPlugin = (function (_super) {
     GroupPlugin.getMarkupValueExampleForUnionType = function (ref) {
         var ret = [];
         if (ref && ref.type && ref.type.types[0] && ref.type.types[0].typeArguments && ref.type.types[0].typeArguments[0]) {
-            if (ref.type.types[0].typeArguments[0].constructor.name.toLowerCase() == 'uniontype') {
+            if (ref.type.types[0].typeArguments[0].constructor.name.toLowerCase() === 'uniontype') {
                 ret = ref.type.types[0].typeArguments[0].types.map(function (type) {
                     return type.value;
                 });
-                if (ref.type.types[0].name && ref.type.types[0].name.toLowerCase() == 'array') {
+                if (ref.type.types[0].name && ref.type.types[0].name.toLowerCase() === 'array') {
                     var copy = [];
                     for (var i = 0; i < ret.length; i++) {
                         copy[i] = ret.slice(0, i + 1).join(',');
@@ -264,7 +268,6 @@ var GroupPlugin = (function (_super) {
         components_1.Component({ name: 'group' })
     ], GroupPlugin);
     return GroupPlugin;
-    var GroupPlugin_1;
 }(components_1.ConverterComponent));
 exports.GroupPlugin = GroupPlugin;
 //# sourceMappingURL=GroupPlugin.js.map

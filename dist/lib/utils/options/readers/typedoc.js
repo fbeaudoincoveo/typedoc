@@ -1,8 +1,11 @@
 "use strict";
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -32,6 +35,9 @@ var TypedocReader = (function (_super) {
         this.listenTo(this.owner, options_1.DiscoverEvent.DISCOVER, this.onDiscover, -150);
     };
     TypedocReader.prototype.onDiscover = function (event) {
+        if (event.mode !== options_1.OptionsReadMode.Fetch) {
+            return;
+        }
         if (TypedocReader_1.OPTIONS_KEY in event.data) {
             this.load(event, Path.resolve(event.data[TypedocReader_1.OPTIONS_KEY]));
         }
@@ -70,6 +76,7 @@ var TypedocReader = (function (_super) {
             _.defaultsDeep(event.data, data);
         }
     };
+    var TypedocReader_1;
     TypedocReader.OPTIONS_KEY = 'options';
     __decorate([
         component_1.Option({
@@ -83,7 +90,6 @@ var TypedocReader = (function (_super) {
         component_1.Component({ name: 'options:typedoc' })
     ], TypedocReader);
     return TypedocReader;
-    var TypedocReader_1;
 }(options_1.OptionsComponent));
 exports.TypedocReader = TypedocReader;
 //# sourceMappingURL=typedoc.js.map

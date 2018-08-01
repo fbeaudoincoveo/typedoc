@@ -31,12 +31,11 @@ export function createDeclaration(context: Context, node: ts.Node, kind: Reflect
         throw new Error('Expected container reflection.');
     }
 
-    if(kind != ReflectionKind.Module && kind != ReflectionKind.ExternalModule) {
-        if (getRawComment(node) == '' || getRawComment(node) == null) {
+    if (kind !== ReflectionKind.Module && kind !== ReflectionKind.ExternalModule) {
+        if (getRawComment(node) === '' || getRawComment(node) === null) {
             return null;
         }
     }
-
 
     // Ensure we have a name for the reflection
     if (!name) {
@@ -49,7 +48,7 @@ export function createDeclaration(context: Context, node: ts.Node, kind: Reflect
         }
     }
 
-    const modifiers = ts.getCombinedModifierFlags(node);
+    const modifiers = ts.getCombinedModifierFlags(node as ts.Declaration);
 
     // Test whether the node is exported
     let isExported: boolean;
@@ -62,7 +61,7 @@ export function createDeclaration(context: Context, node: ts.Node, kind: Reflect
     if (kind === ReflectionKind.ExternalModule) {
         isExported = true; // Always mark external modules as exported
     } else if (node.parent && node.parent.kind === ts.SyntaxKind.VariableDeclarationList) {
-        const parentModifiers = ts.getCombinedModifierFlags(node.parent.parent);
+        const parentModifiers = ts.getCombinedModifierFlags(node.parent.parent as ts.Declaration);
         isExported = isExported || !!(parentModifiers & ts.ModifierFlags.Export);
     } else {
         isExported = isExported || !!(modifiers & ts.ModifierFlags.Export);
@@ -107,7 +106,7 @@ export function createDeclaration(context: Context, node: ts.Node, kind: Reflect
         child.setFlag(ReflectionFlag.Static, isStatic);
         child.setFlag(ReflectionFlag.Private, isPrivate);
         child.setFlag(ReflectionFlag.ConstructorProperty, isConstructorProperty);
-        child.setFlag(ReflectionFlag.Exported,  isExported);
+        child.setFlag(ReflectionFlag.Exported, isExported);
         child = setupDeclaration(context, child, node);
 
         if (child) {
@@ -136,12 +135,12 @@ export function createDeclaration(context: Context, node: ts.Node, kind: Reflect
  * @returns The reflection populated with the values of the given node.
  */
 function setupDeclaration(context: Context, reflection: DeclarationReflection, node: ts.Node) {
-    const modifiers = ts.getCombinedModifierFlags(node);
+    const modifiers = ts.getCombinedModifierFlags(node as ts.Declaration);
 
-    reflection.setFlag(ReflectionFlag.External,  context.isExternal);
+    reflection.setFlag(ReflectionFlag.External, context.isExternal);
     reflection.setFlag(ReflectionFlag.Protected, !!(modifiers & ts.ModifierFlags.Protected));
-    reflection.setFlag(ReflectionFlag.Public,    !!(modifiers & ts.ModifierFlags.Public));
-    reflection.setFlag(ReflectionFlag.Optional,  !!(node['questionToken']));
+    reflection.setFlag(ReflectionFlag.Public, !!(modifiers & ts.ModifierFlags.Public));
+    reflection.setFlag(ReflectionFlag.Optional, !!(node['questionToken']));
 
     if (
         context.isInherit &&

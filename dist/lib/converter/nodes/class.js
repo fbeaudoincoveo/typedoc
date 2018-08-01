@@ -1,8 +1,11 @@
 "use strict";
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -39,10 +42,7 @@ var ClassConverter = (function (_super) {
         }
         else {
             reflection = index_2.createDeclaration(context, node, index_1.ReflectionKind.Class);
-            if (!reflection) {
-                return;
-            }
-            if (node.modifiers && node.modifiers.some(function (m) { return m.kind === ts.SyntaxKind.AbstractKeyword; })) {
+            if (reflection && node.modifiers && node.modifiers.some(function (m) { return m.kind === ts.SyntaxKind.AbstractKeyword; })) {
                 reflection.setFlag(index_1.ReflectionFlag.Abstract, true);
             }
         }
@@ -59,7 +59,7 @@ var ClassConverter = (function (_super) {
                     }
                 });
             }
-            var baseType = _ts.getClassExtendsHeritageClauseElement(node);
+            var baseType = _ts.getClassExtendsHeritageElement(node);
             if (baseType) {
                 var type = context.getTypeAtLocation(baseType);
                 if (!context.isInherit) {

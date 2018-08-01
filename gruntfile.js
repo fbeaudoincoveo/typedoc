@@ -28,6 +28,14 @@ module.exports = function (grunt) {
                 out: 'src/typings/typescript/typescript.js'
             }
         },
+        tslint: {
+            options: {
+                configuration: 'tslint.json'
+            },
+            files: {
+                src: [ 'src/**/*.ts', '!src/test/converter/**/*.ts' ]
+            }
+        },
         'string-replace': {
             version: {
                 files: {
@@ -55,7 +63,7 @@ module.exports = function (grunt) {
                 }
             }
         },
-        copy: {
+        copy:  {
             staticTestFiles: {
                 expand: true,
                 cwd: 'src',
@@ -93,9 +101,10 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-ts');
+    grunt.loadNpmTasks('grunt-tslint');
     grunt.loadNpmTasks('grunt-mocha-istanbul');
 
-    grunt.registerTask('default', ['ts:typedoc', 'string-replace:version']);
+    grunt.registerTask('default', ['tslint', 'ts:typedoc', 'string-replace:version']);
     grunt.registerTask('build_and_test', ['default'/*, 'specs', 'copy', 'mocha_istanbul:coverage'*/]);
     grunt.registerTask('specs', ['clean:specsBefore', 'build-specs', 'clean:specsAfter']);
 

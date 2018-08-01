@@ -1,8 +1,11 @@
 "use strict";
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -92,7 +95,7 @@ var Logger = (function () {
             output += ts.sys.newLine + ' ' + ts.flattenDiagnosticMessageText(diagnostic.messageText, ts.sys.newLine);
         }
         else {
-            output = diagnostic.messageText.toString();
+            output = ts.flattenDiagnosticMessageText(diagnostic.messageText, ts.sys.newLine);
         }
         switch (diagnostic.category) {
             case ts.DiagnosticCategory.Error:

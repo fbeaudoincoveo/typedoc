@@ -1,8 +1,11 @@
 "use strict";
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -34,6 +37,9 @@ var TSConfigReader = (function (_super) {
         this.listenTo(this.owner, options_1.DiscoverEvent.DISCOVER, this.onDiscover, -100);
     };
     TSConfigReader.prototype.onDiscover = function (event) {
+        if (event.mode !== options_1.OptionsReadMode.Fetch) {
+            return;
+        }
         if (TSConfigReader_1.OPTIONS_KEY in event.data) {
             this.load(event, Path.resolve(event.data[TSConfigReader_1.OPTIONS_KEY]));
         }
@@ -73,6 +79,7 @@ var TSConfigReader = (function (_super) {
         }
         _.defaults(event.data, typedocOptions, options);
     };
+    var TSConfigReader_1;
     TSConfigReader.OPTIONS_KEY = 'tsconfig';
     TSConfigReader.PROJECT_KEY = 'project';
     __decorate([
@@ -87,7 +94,6 @@ var TSConfigReader = (function (_super) {
         component_1.Component({ name: 'options:tsconfig' })
     ], TSConfigReader);
     return TSConfigReader;
-    var TSConfigReader_1;
 }(options_1.OptionsComponent));
 exports.TSConfigReader = TSConfigReader;
 //# sourceMappingURL=tsconfig.js.map

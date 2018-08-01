@@ -4,6 +4,6 @@ export declare class GitHubPlugin extends ConverterComponent {
     private ignoredPaths;
     gitRevision: string;
     initialize(): void;
-    private getRepository(fileName);
-    private onEndResolve(context);
+    private getRepository;
+    private onEndResolve;
 }

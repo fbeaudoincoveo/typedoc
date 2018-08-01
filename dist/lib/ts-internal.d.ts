@@ -24,7 +24,7 @@ export declare function getTextOfNode(node: ts.Node, includeTrivia?: boolean): s
 export declare function declarationNameToString(name: ts.DeclarationName): string;
 export declare function getJSDocCommentRanges(node: ts.Node, text: string): any;
 export declare function isBindingPattern(node: ts.Node): node is ts.BindingPattern;
-export declare function getClassExtendsHeritageClauseElement(node: ts.ClassLikeDeclaration | ts.InterfaceDeclaration): any;
+export declare function getClassExtendsHeritageElement(node: ts.ClassLikeDeclaration | ts.InterfaceDeclaration): any;
 export declare function getClassImplementsHeritageClauseElements(node: ts.ClassLikeDeclaration): any;
 export declare function getInterfaceBaseTypeNodes(node: ts.InterfaceDeclaration): any;
 export declare const CharacterCodes: {

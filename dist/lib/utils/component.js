@@ -1,8 +1,11 @@
 "use strict";
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -93,13 +96,12 @@ var AbstractComponent = (function (_super) {
         for (var _i = 1; _i < arguments.length; _i++) {
             args[_i - 1] = arguments[_i];
         }
-        (_a = _super.prototype.trigger).apply.call(_a, this, arguments);
+        _super.prototype.trigger.apply(this, arguments);
         var owner = this.owner;
         if (owner instanceof AbstractComponent) {
             owner.bubble.apply(this._componentOwner, arguments);
         }
         return this;
-        var _a;
     };
     AbstractComponent.prototype.getOptionDeclarations = function () {
         return this._componentOptions ? this._componentOptions.slice() : [];

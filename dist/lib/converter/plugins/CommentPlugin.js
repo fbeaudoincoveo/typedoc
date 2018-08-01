@@ -1,8 +1,11 @@
 "use strict";
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -29,6 +32,7 @@ var CommentPlugin = (function (_super) {
     }
     CommentPlugin_1 = CommentPlugin;
     CommentPlugin.prototype.initialize = function () {
+        var _a;
         this.listenTo(this.owner, (_a = {},
             _a[converter_1.Converter.EVENT_BEGIN] = this.onBegin,
             _a[converter_1.Converter.EVENT_CREATE_DECLARATION] = this.onDeclaration,
@@ -38,7 +42,6 @@ var CommentPlugin = (function (_super) {
             _a[converter_1.Converter.EVENT_RESOLVE_BEGIN] = this.onBeginResolve,
             _a[converter_1.Converter.EVENT_RESOLVE] = this.onResolve,
             _a));
-        var _a;
     };
     CommentPlugin.prototype.storeModuleComment = function (comment, reflection) {
         var isPreferred = (comment.toLowerCase().indexOf('@preferred') !== -1);
@@ -75,7 +78,7 @@ var CommentPlugin = (function (_super) {
             reflection.kind = index_3.ReflectionKind.Event;
             CommentPlugin_1.removeTags(comment, 'event');
         }
-        if (comment.hasTag('hidden')) {
+        if (comment.hasTag('hidden') || comment.hasTag('ignore')) {
             if (!this.hidden) {
                 this.hidden = [];
             }
@@ -269,11 +272,11 @@ var CommentPlugin = (function (_super) {
             }
         }
     };
+    var CommentPlugin_1;
     CommentPlugin = CommentPlugin_1 = __decorate([
         components_1.Component({ name: 'comment' })
     ], CommentPlugin);
     return CommentPlugin;
-    var CommentPlugin_1;
 }(components_1.ConverterComponent));
 exports.CommentPlugin = CommentPlugin;
 //# sourceMappingURL=CommentPlugin.js.map

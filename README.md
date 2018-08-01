@@ -75,7 +75,9 @@ in order to change the behaviour of TypeDoc.
   Specify module code generation: "commonjs", "amd", "system" or "umd".
 * `--target <ES3, ES5, or ES6>`<br>
   Specify ECMAScript target version: "ES3" (default), "ES5" or "ES6"
-
+* `--tsconfig <path/to/tsconfig.json>`<br>
+  Specify a typescript config file that should be loaded. If not specified TypeDoc will look for 'tsconfig.json' in the current directory.
+  
 #### Theming
 * `--theme <default|minimal|path/to/theme>`<br>
   Specify the path to the theme that should be used.
@@ -152,5 +154,5 @@ You can find TypeDoc on GitHub; feel free to start an issue or create a pull req
 ## License
 
 Copyright (c) 2015 [Sebastian Lenz](http://typedoc.org).<br>
-Copyright (c) 2016-2017 [TypeDoc Contributors](https://github.com/TypeStrong/typedoc/graphs/contributors).<br>
+Copyright (c) 2016-2018 [TypeDoc Contributors](https://github.com/TypeStrong/typedoc/graphs/contributors).<br>
 Licensed under the Apache License 2.0.

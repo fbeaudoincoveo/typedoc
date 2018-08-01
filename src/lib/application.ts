@@ -1,6 +1,6 @@
-import { LinkParser } from "./utils/LinkParser";
-var marked = require("marked");
-var highlight = require("highlight.js");
+import { LinkParser } from './utils/LinkParser';
+import marked = require('marked');
+import highlight = require('highlight.js');
 
 /**
  * The TypeDoc main module and namespace.
@@ -89,7 +89,6 @@ export class Application extends ChildableComponent<Application, AbstractCompone
     })
     exclude: Array<string>;
 
-
     /**
      * The version number of TypeDoc.
      */
@@ -112,7 +111,7 @@ export class Application extends ChildableComponent<Application, AbstractCompone
 
         this.bootstrap(options);
 
-        this.notSupportedFeaturesConfig = (<any>options).notSupportedFeaturesConfig
+        this.notSupportedFeaturesConfig = (<any> options).notSupportedFeaturesConfig;
     }
 
     /**
@@ -125,13 +124,13 @@ export class Application extends ChildableComponent<Application, AbstractCompone
 
         const logger = this.loggerType;
         if (typeof logger === 'function') {
-            this.logger = new CallbackLogger(<any>logger);
+            this.logger = new CallbackLogger(<any> logger);
         } else if (logger === 'none') {
             this.logger = new Logger();
         }
 
         this.plugins.load();
-        return this.options.read(options, OptionsReadMode.Fetch);
+        return this.options.read(this.options.getRawValues(), OptionsReadMode.Fetch);
     }
 
     /**
@@ -239,7 +238,7 @@ export class Application extends ChildableComponent<Application, AbstractCompone
         out = Path.resolve(out);
         const eventData = { outputDirectory: Path.dirname(out), outputFile: Path.basename(out) };
         const ser = this.serializer.projectToObject(project, { begin: eventData, end: eventData });
-        const prettifiedJson = this.prettifyJson(ser, project, linkPrefix)
+        const prettifiedJson = this.prettifyJson(ser, project, linkPrefix);
         writeFile(out, JSON.stringify(prettifiedJson, null, '\t'), false);
         this.logger.success('JSON written to %s', out);
 
@@ -269,10 +268,10 @@ export class Application extends ChildableComponent<Application, AbstractCompone
         let visitChildren = (json, path) => {
             if (json != null) {
                 let comment = json.comment;
-                if (json.name == project.name) {
+                if (json.name === project.name) {
                     json.name = '';
                 }
-                if (comment && comment.shortText != null && json.name != project.name) {
+                if (comment && comment.shortText != null && json.name !== project.name) {
                     let markedText = marked(comment.shortText + (comment.text ? '\n' + comment.text : ''));
                     let type = '';
 
@@ -294,13 +293,13 @@ export class Application extends ChildableComponent<Application, AbstractCompone
                 if (json.children != null && json.children.length > 0) {
                     let newPath = path + json.name;
 
-                    // when using relative path and entering a new module, 
+                    // when using relative path and entering a new module,
                     // the first child is an empty node where the name is the path.
                     if (newPath.match('^".*"$') && json.comment == null) {
                         newPath = '';
                     }
 
-                    if (newPath != '') {
+                    if (newPath !== '') {
                         newPath += '.';
                     }
                     json.children.forEach(child => visitChildren(child, newPath));
@@ -314,14 +313,14 @@ export class Application extends ChildableComponent<Application, AbstractCompone
     private generateConstrainedValues(str: any) {
         let constrainedValues = [];
 
-        if (str && str['type'] && str['type'].type == 'union') {
+        if (str && str['type'] && str['type'].type === 'union') {
             if (str.type.types[1] && str.type.types[1].elementType && str.type.types[1].elementType.types) {
                 constrainedValues = str.type.types[1].elementType.types.map(function (type) {
                     return type.value;
                 });
-                if (str.type.types[0].type && str.type.types[0].type.toLowerCase() == 'array') {
-                    var copy = [];
-                    for (var i = 0; i < constrainedValues.length; i++) {
+                if (str.type.types[0].type && str.type.types[0].type.toLowerCase() === 'array') {
+                    let copy = [];
+                    for (let i = 0; i < constrainedValues.length; i++) {
                         copy[i] = constrainedValues.slice(0, i + 1).join(',');
                     }
                     constrainedValues = copy;
@@ -334,13 +333,13 @@ export class Application extends ChildableComponent<Application, AbstractCompone
     }
 
     private generateMiscAttributes(str: any) {
-        var otherMiscAttributes = {};
+        let otherMiscAttributes = {};
         if (str.defaultValue) {
-            var required = str.defaultValue.match(/required\s*:\s([a-zA-Z]+)\s*/);
+            const required = str.defaultValue.match(/required\s*:\s([a-zA-Z]+)\s*/);
             if (required) {
                 otherMiscAttributes['required'] = required[1];
             }
-            var defaultOptionValue = str.defaultValue.match(/defaultValue\s*:\s([a-zA-Z0-9()'"]+)\s*/);
+            let defaultOptionValue = str.defaultValue.match(/defaultValue\s*:\s([a-zA-Z0-9()'"]+)\s*/);
             if (defaultOptionValue) {
                 defaultOptionValue[1] = defaultOptionValue[1].replace('l(', '');
                 defaultOptionValue[1] = defaultOptionValue[1].replace(')', '');

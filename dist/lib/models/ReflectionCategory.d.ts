@@ -4,6 +4,6 @@ export declare class ReflectionCategory {
     children: Reflection[];
     allChildrenHaveOwnDocument: Function;
     constructor(title: string);
-    private getAllChildrenHaveOwnDocument();
+    private getAllChildrenHaveOwnDocument;
     toObject(): any;
 }

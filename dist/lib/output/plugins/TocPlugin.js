@@ -1,8 +1,11 @@
 "use strict";
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -27,10 +30,10 @@ var TocPlugin = (function (_super) {
     }
     TocPlugin_1 = TocPlugin;
     TocPlugin.prototype.initialize = function () {
+        var _a;
         this.listenTo(this.owner, (_a = {},
             _a[events_1.PageEvent.BEGIN] = this.onRendererBeginPage,
             _a));
-        var _a;
     };
     TocPlugin.prototype.onRendererBeginPage = function (page) {
         var model = page.model;
@@ -73,11 +76,11 @@ var TocPlugin = (function (_super) {
             });
         }
     };
+    var TocPlugin_1;
     TocPlugin = TocPlugin_1 = __decorate([
         components_1.Component({ name: 'toc' })
     ], TocPlugin);
     return TocPlugin;
-    var TocPlugin_1;
 }(components_1.RendererComponent));
 exports.TocPlugin = TocPlugin;
 //# sourceMappingURL=TocPlugin.js.map

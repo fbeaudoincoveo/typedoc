@@ -12,7 +12,7 @@ const camelCaseToHyphenRegex = /([A-Z])|\W+(\w)/g;
  *
  * The handler sets the ´groups´ property of all reflections.
  */
-@Component({ name: 'group' })
+@Component({name: 'group'})
 export class GroupPlugin extends ConverterComponent {
     /**
      * Define the sort order of reflections.
@@ -49,9 +49,9 @@ export class GroupPlugin extends ConverterComponent {
     /**
      * Define the singular name of individual reflection kinds.
      */
-    static SINGULARS = (function () {
+    static SINGULARS = (function() {
         const singulars = {};
-        singulars[ReflectionKind.Enum] = 'Enumeration';
+        singulars[ReflectionKind.Enum]       = 'Enumeration';
         singulars[ReflectionKind.EnumMember] = 'Enumeration member';
         return singulars;
     })();
@@ -59,11 +59,11 @@ export class GroupPlugin extends ConverterComponent {
     /**
      * Define the plural name of individual reflection kinds.
      */
-    static PLURALS = (function () {
+    static PLURALS = (function() {
         const plurals = {};
-        plurals[ReflectionKind.Class] = 'Classes';
-        plurals[ReflectionKind.Property] = 'Properties';
-        plurals[ReflectionKind.Enum] = 'Enumerations';
+        plurals[ReflectionKind.Class]      = 'Classes';
+        plurals[ReflectionKind.Property]   = 'Properties';
+        plurals[ReflectionKind.Enum]       = 'Enumerations';
         plurals[ReflectionKind.EnumMember] = 'Enumeration members';
         plurals[ReflectionKind.TypeAlias] = 'Type aliases';
         return plurals;
@@ -89,7 +89,7 @@ export class GroupPlugin extends ConverterComponent {
         reflection.kindString = GroupPlugin.getKindSingular(reflection.kind);
 
         if (reflection instanceof ContainerReflection) {
-            const container = <ContainerReflection>reflection;
+            const container = <ContainerReflection> reflection;
             if (container.children && container.children.length > 0) {
                 container.children.sort(GroupPlugin.sortCallback);
                 container.groups = GroupPlugin.getReflectionGroups(container.children);
@@ -152,7 +152,7 @@ export class GroupPlugin extends ConverterComponent {
                 group.title = 'Component Options';
             }
             group.children.push(child);
-            if (group.title == 'Component Options') {
+            if (group.title === 'Component Options') {
                 if (group.children[0]['children']) {
                     group.children = group.children[0]['children'];
                     group.children.forEach((child) => {
@@ -162,16 +162,16 @@ export class GroupPlugin extends ConverterComponent {
                                 child.markupExample = valuesExamples.map((example) => {
                                     return `data-${child.name.replace(camelCaseToHyphenRegex, '-$1$2').toLowerCase()}='${example}'`;
                                 }).join('\n');
-                                if (child.markupExample == '') {
+                                if (child.markupExample === '') {
                                     child.markupExample = null;
                                 }
                             }
                         }
                         if (child.comment.hasTag('notsupportedin')) {
-                            var tag = child.comment.getTag('notsupportedin');
+                            let tag = child.comment.getTag('notsupportedin');
                             tag.tagName = 'Not supported in';
                         }
-                    })
+                    });
                 }
             }
             groups.push(group);
@@ -204,7 +204,7 @@ export class GroupPlugin extends ConverterComponent {
 
     private static getMarkupValueExampleFromType(name: string, ref: Reflection): string[] {
         let ret = [];
-        if (ref && ref['type'] && ref['type'].constructor.name.toLowerCase() == 'uniontype') {
+        if (ref && ref['type'] && ref['type'].constructor.name.toLowerCase() === 'uniontype') {
             ret = GroupPlugin.getMarkupValueExampleForUnionType(ref);
         } else if (name) {
             switch (name.toLowerCase()) {
@@ -225,7 +225,7 @@ export class GroupPlugin extends ConverterComponent {
                         ret = GroupPlugin.getMarkupValueExampleFromType(ref['type'].typeArguments[0].name, ref);
                         ret = ret.map((example) => {
                             return `${example},${example}2`;
-                        })
+                        });
                     }
                     break;
             }
@@ -234,15 +234,15 @@ export class GroupPlugin extends ConverterComponent {
     }
 
     private static getMarkupValueExampleForUnionType = function (ref) {
-        var ret = [];
+        let ret = [];
         if (ref && ref.type && ref.type.types[0] && ref.type.types[0].typeArguments && ref.type.types[0].typeArguments[0]) {
-            if (ref.type.types[0].typeArguments[0].constructor.name.toLowerCase() == 'uniontype') {
+            if (ref.type.types[0].typeArguments[0].constructor.name.toLowerCase() === 'uniontype') {
                 ret = ref.type.types[0].typeArguments[0].types.map(function (type) {
                     return type.value;
                 });
-                if (ref.type.types[0].name && ref.type.types[0].name.toLowerCase() == 'array') {
-                    var copy = [];
-                    for (var i = 0; i < ret.length; i++) {
+                if (ref.type.types[0].name && ref.type.types[0].name.toLowerCase() === 'array') {
+                    let copy = [];
+                    for (let i = 0; i < ret.length; i++) {
                         copy[i] = ret.slice(0, i + 1).join(',');
                     }
                     ret = copy;
@@ -253,8 +253,7 @@ export class GroupPlugin extends ConverterComponent {
             }
         }
         return ret;
-
-    }
+    };
 
     /**
      * Transform the internal typescript kind identifier into a human readable version.

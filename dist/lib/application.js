@@ -1,8 +1,11 @@
 "use strict";
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -56,7 +59,7 @@ var Application = (function (_super) {
             this.logger = new index_3.Logger();
         }
         this.plugins.load();
-        return this.options.read(options, index_4.OptionsReadMode.Fetch);
+        return this.options.read(this.options.getRawValues(), index_4.OptionsReadMode.Fetch);
     };
     Object.defineProperty(Application.prototype, "application", {
         get: function () {
@@ -151,10 +154,10 @@ var Application = (function (_super) {
         var visitChildren = function (json, path) {
             if (json != null) {
                 var comment = json.comment;
-                if (json.name == project.name) {
+                if (json.name === project.name) {
                     json.name = '';
                 }
-                if (comment && comment.shortText != null && json.name != project.name) {
+                if (comment && comment.shortText != null && json.name !== project.name) {
                     var markedText = marked(comment.shortText + (comment.text ? '\n' + comment.text : ''));
                     var type = '';
                     var constrainedValues = _this.generateConstrainedValues(json);
@@ -177,7 +180,7 @@ var Application = (function (_super) {
                     if (newPath_1.match('^".*"$') && json.comment == null) {
                         newPath_1 = '';
                     }
-                    if (newPath_1 != '') {
+                    if (newPath_1 !== '') {
                         newPath_1 += '.';
                     }
                     json.children.forEach(function (child) { return visitChildren(child, newPath_1); });
@@ -189,12 +192,12 @@ var Application = (function (_super) {
     };
     Application.prototype.generateConstrainedValues = function (str) {
         var constrainedValues = [];
-        if (str && str['type'] && str['type'].type == 'union') {
+        if (str && str['type'] && str['type'].type === 'union') {
             if (str.type.types[1] && str.type.types[1].elementType && str.type.types[1].elementType.types) {
                 constrainedValues = str.type.types[1].elementType.types.map(function (type) {
                     return type.value;
                 });
-                if (str.type.types[0].type && str.type.types[0].type.toLowerCase() == 'array') {
+                if (str.type.types[0].type && str.type.types[0].type.toLowerCase() === 'array') {
                     var copy = [];
                     for (var i = 0; i < constrainedValues.length; i++) {
                         copy[i] = constrainedValues.slice(0, i + 1).join(',');
@@ -263,7 +266,8 @@ var Application = (function (_super) {
             ''
         ].join(typescript.sys.newLine);
     };
-    Application.VERSION = '0.10.0';
+    var Application_1;
+    Application.VERSION = '0.11.1';
     __decorate([
         component_1.Option({
             name: 'logger',
@@ -290,7 +294,6 @@ var Application = (function (_super) {
         component_1.Component({ name: 'application', internal: true })
     ], Application);
     return Application;
-    var Application_1;
 }(component_1.ChildableComponent));
 exports.Application = Application;
 //# sourceMappingURL=application.js.map

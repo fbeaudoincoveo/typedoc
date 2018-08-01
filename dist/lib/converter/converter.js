@@ -1,8 +1,11 @@
 "use strict";
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -132,7 +135,7 @@ var Converter = (function (_super) {
         }
         context.visitStack = oldVisitStack;
         var comment = comment_1.getRawComment(node);
-        if (result && comment != null && comment.indexOf('@notSupportedIn') != -1) {
+        if (result && comment !== null && comment.indexOf('@notSupportedIn') !== -1) {
             var tagRegex = /@(?:notSupportedIn)\s*((?:[\w]+, )*[\w]+)/g;
             result.comment = comment_1.parseComment(comment.replace(tagRegex, ''));
             var tag = tagRegex.exec(comment);
@@ -147,14 +150,14 @@ var Converter = (function (_super) {
             result.comment.tags.push(new comments_1.CommentTag('not supported in', '', tagValue));
             result.notSupportedIn = tag[1].split(/,\s?/);
         }
-        if (result && comment != null && comment.indexOf('@componentOptions') != -1) {
+        if (result && comment !== null && comment.indexOf('@componentOptions') !== -1) {
             result.setFlag(__1.ReflectionFlag.CoveoComponentOptions, true);
         }
         if (result && result instanceof __1.DeclarationReflection) {
             var declarationReflection = result;
             if (declarationReflection.extendedTypes) {
                 declarationReflection.extendedTypes.forEach(function (type) {
-                    if (type.toString().toLowerCase() == 'component') {
+                    if (type.toString().toLowerCase() === 'component') {
                         result.kind = __1.ReflectionKind.CoveoComponent;
                     }
                 });
@@ -231,6 +234,7 @@ var Converter = (function (_super) {
     Converter.prototype.getDefaultLib = function () {
         return ts.getDefaultLibFileName(this.application.options.getCompilerOptions());
     };
+    var Converter_1;
     Converter.EVENT_BEGIN = 'begin';
     Converter.EVENT_END = 'end';
     Converter.EVENT_FILE_BEGIN = 'fileBegin';
@@ -293,7 +297,6 @@ var Converter = (function (_super) {
         component_1.Component({ name: 'converter', internal: true, childClass: components_1.ConverterComponent })
     ], Converter);
     return Converter;
-    var Converter_1;
 }(component_1.ChildableComponent));
 exports.Converter = Converter;
 //# sourceMappingURL=converter.js.map

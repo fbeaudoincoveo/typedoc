@@ -3,6 +3,6 @@ import { RendererComponent } from '../components';
 import { NavigationItem } from '../models/NavigationItem';
 export declare class TocPlugin extends RendererComponent {
     initialize(): void;
-    private onRendererBeginPage(page);
+    private onRendererBeginPage;
     static buildToc(model: Reflection, trail: Reflection[], parent: NavigationItem, restriction?: string[]): void;
 }

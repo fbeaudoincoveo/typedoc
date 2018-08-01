@@ -15,8 +15,8 @@ function createDeclaration(context, node, kind, name) {
     if (!(container instanceof index_1.ContainerReflection)) {
         throw new Error('Expected container reflection.');
     }
-    if (kind != index_1.ReflectionKind.Module && kind != index_1.ReflectionKind.ExternalModule) {
-        if (comment_1.getRawComment(node) == '' || comment_1.getRawComment(node) == null) {
+    if (kind !== index_1.ReflectionKind.Module && kind !== index_1.ReflectionKind.ExternalModule) {
+        if (comment_1.getRawComment(node) === '' || comment_1.getRawComment(node) === null) {
             return null;
         }
     }

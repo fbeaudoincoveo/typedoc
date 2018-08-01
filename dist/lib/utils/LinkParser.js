@@ -16,10 +16,12 @@ var LinkParser = (function () {
             var target = split.target;
             var caption = leading || split.caption;
             var monospace;
-            if (tagName == 'linkcode')
+            if (tagName === 'linkcode') {
                 monospace = true;
-            if (tagName == 'linkplain')
+            }
+            if (tagName === 'linkplain') {
                 monospace = false;
+            }
             return _this.buildLink(match, target, caption, monospace);
         });
     };
