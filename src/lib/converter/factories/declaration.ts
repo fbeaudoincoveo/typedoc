@@ -48,7 +48,7 @@ export function createDeclaration(context: Context, node: ts.Node, kind: Reflect
         }
     }
 
-    const modifiers = ts.getCombinedModifierFlags(node.symbol.valueDeclaration);
+    const modifiers = ts.getCombinedModifierFlags(node as ts.Declaration);
 
     // Test whether the node is exported
     let isExported: boolean;
@@ -61,7 +61,7 @@ export function createDeclaration(context: Context, node: ts.Node, kind: Reflect
     if (kind === ReflectionKind.ExternalModule) {
         isExported = true; // Always mark external modules as exported
     } else if (node.parent && node.parent.kind === ts.SyntaxKind.VariableDeclarationList) {
-        const parentModifiers = ts.getCombinedModifierFlags(node.parent.parent.symbol.valueDeclaration);
+        const parentModifiers = ts.getCombinedModifierFlags(node.parent.parent as ts.Declaration);
         isExported = isExported || !!(parentModifiers & ts.ModifierFlags.Export);
     } else {
         isExported = isExported || !!(modifiers & ts.ModifierFlags.Export);
@@ -135,7 +135,7 @@ export function createDeclaration(context: Context, node: ts.Node, kind: Reflect
  * @returns The reflection populated with the values of the given node.
  */
 function setupDeclaration(context: Context, reflection: DeclarationReflection, node: ts.Node) {
-    const modifiers = ts.getCombinedModifierFlags(node.symbol.valueDeclaration);
+    const modifiers = ts.getCombinedModifierFlags(node as ts.Declaration);
 
     reflection.setFlag(ReflectionFlag.External, context.isExternal);
     reflection.setFlag(ReflectionFlag.Protected, !!(modifiers & ts.ModifierFlags.Protected));
