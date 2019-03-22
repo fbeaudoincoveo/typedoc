@@ -435,17 +435,6 @@ export class Converter extends ChildableComponent<Application, ConverterComponen
     private compile(context: Context): ReadonlyArray<ts.Diagnostic> {
         const program = context.program;
 
-<<<<<<< HEAD
-        const appDirectory = this.compilerHost.currentDirectory;        
-        program.getSourceFiles().forEach((sourceFile) => {
-            if(!Path.isAbsolute(sourceFile.fileName)) {
-              sourceFile.fileName = normalizePath(_ts.normalizeSlashes(Path.join(appDirectory, sourceFile.fileName)));
-            }
-            this.convertNode(context, sourceFile);
-        });
-
-        let diagnostics = program.getOptionsDiagnostics();
-=======
         const exclude = createMinimatch(this.application.exclude || []);
         const isExcluded = (file: ts.SourceFile) => exclude.some(mm => mm.match(file.fileName));
 
@@ -458,7 +447,6 @@ export class Converter extends ChildableComponent<Application, ConverterComponen
         });
 
         let diagnostics = program.getOptionsDiagnostics().filter(isRelevantError);
->>>>>>> 49602d913d9dc8588e03a404e0b5bd3651bd003b
         if (diagnostics.length) {
             return diagnostics;
         }

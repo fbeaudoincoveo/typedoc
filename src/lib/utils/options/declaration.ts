@@ -93,11 +93,7 @@ export class OptionDeclaration {
                 value = !!value;
                 break;
             case ParameterType.String:
-<<<<<<< HEAD
-                value = value || '';
-=======
                 value = value ? value + '' : '';
->>>>>>> 49602d913d9dc8588e03a404e0b5bd3651bd003b
                 break;
             case ParameterType.Array:
                 if (!value) {
