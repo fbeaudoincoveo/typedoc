@@ -3,27 +3,27 @@ import { Reflection, TraverseProperty } from '../../../models';
 
 import { ReflectionSerializerComponent } from '../../components';
 import { DecoratorWrapper } from '../models';
+import { ReflectionFlags } from '../../../models/reflections/abstract';
 
-@Component({ name: 'serializer:reflection' })
+@Component({name: 'serializer:reflection'})
 export class ReflectionSerializer extends ReflectionSerializerComponent<Reflection> {
 
   static PRIORITY = 1000;
 
-  initialize(): void {
-    super.initialize();
-    this.supports = (r: Reflection) => true;
+  supports(t: unknown) {
+    return t instanceof Reflection;
   }
 
   toObject(reflection: Reflection, obj?: any): any {
     obj = obj || {};
 
     Object.assign(obj, {
-      id: reflection.id,
-      name: reflection.name,
-      kind: reflection.kind,
+      id:         reflection.id,
+      name:       reflection.name,
+      kind:       reflection.kind,
       kindString: reflection.kindString,
-      notSupportedIn: reflection.notSupportedIn,
-      flags: {}                      // TODO: remove if no flags
+      notSupportedIn: reflection.notSupportedIn, // Coveo-specific
+      flags:      {}                      // TODO: remove if no flags
     });
 
     if (reflection.originalName !== reflection.name) {
@@ -34,22 +34,18 @@ export class ReflectionSerializer extends ReflectionSerializerComponent<Reflecti
       obj.comment = this.owner.toObject(reflection.comment);
     }
 
-    for (let key in reflection.flags) {
-      // tslint:disable-next-line:triple-equals
-      if (parseInt(key, 10) == <any>key || key === 'flags') {
-        continue;
-      }
-      if (reflection.flags[key]) {
+    for (const key of Object.getOwnPropertyNames(ReflectionFlags.prototype)) {
+      if (reflection.flags[key] === true) {
         obj.flags[key] = true;
       }
     }
 
     if (reflection.decorates && reflection.decorates.length > 0) {
-      obj.decorates = reflection.decorates.map(t => this.owner.toObject(t));
+      obj.decorates = reflection.decorates.map( t => this.owner.toObject(t) );
     }
 
     if (reflection.decorators && reflection.decorators.length > 0) {
-      obj.decorators = reflection.decorators.map(d => this.owner.toObject(new DecoratorWrapper(d)));
+      obj.decorators = reflection.decorators.map( d => this.owner.toObject(new DecoratorWrapper(d)) );
     }
 
     reflection.traverse((child, property) => {
@@ -58,19 +54,10 @@ export class ReflectionSerializer extends ReflectionSerializerComponent<Reflecti
       }
       let name = TraverseProperty[property];
       name = name.substr(0, 1).toLowerCase() + name.substr(1);
-      switch (property) {
-        case TraverseProperty.GetSignature:
-        case TraverseProperty.SetSignature:
-        case TraverseProperty.IndexSignature:
-          obj[name] = this.owner.toObject(child);
-          break;
-        default:
-          if (!obj[name]) {
-            obj[name] = [];
-          }
-          obj[name].push(this.owner.toObject(child));
-          break;
+      if (!obj[name]) {
+        obj[name] = [];
       }
+      obj[name].push(this.owner.toObject(child));
     });
 
     return obj;

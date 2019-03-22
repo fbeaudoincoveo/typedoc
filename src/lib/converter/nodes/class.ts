@@ -6,7 +6,7 @@ import { createDeclaration } from '../factories/index';
 import { Context } from '../context';
 import { Component, ConverterNodeComponent } from '../components';
 
-@Component({ name: 'node:class' })
+@Component({name: 'node:class'})
 export class ClassConverter extends ConverterNodeComponent<ts.ClassDeclaration> {
     /**
      * List of supported TypeScript syntax kinds.
@@ -23,17 +23,14 @@ export class ClassConverter extends ConverterNodeComponent<ts.ClassDeclaration> 
      * @param node     The class declaration node that should be analyzed.
      * @return The resulting reflection or NULL.
      */
-    convert(context: Context, node: ts.ClassDeclaration): Reflection {
-        let reflection: DeclarationReflection;
+    convert(context: Context, node: ts.ClassDeclaration): Reflection | undefined {
+        let reflection: DeclarationReflection | undefined;
         if (context.isInherit && context.inheritParent === node) {
-            reflection = <DeclarationReflection>context.scope;
+            reflection = <DeclarationReflection> context.scope;
         } else {
             reflection = createDeclaration(context, node, ReflectionKind.Class);
-            if (!reflection) {
-                return;
-            }
             // set possible abstract flag here, where node is not the inherited parent
-            if (node.modifiers && node.modifiers.some(m => m.kind === ts.SyntaxKind.AbstractKeyword)) {
+            if (reflection && node.modifiers && node.modifiers.some( m => m.kind === ts.SyntaxKind.AbstractKeyword )) {
                 reflection.setFlag(ReflectionFlag.Abstract, true);
             }
         }
@@ -53,32 +50,34 @@ export class ClassConverter extends ConverterNodeComponent<ts.ClassDeclaration> 
                 });
             }
 
-            const baseType = _ts.getClassExtendsHeritageClauseElement(node);
+            const baseType = _ts.getEffectiveBaseTypeNode(node);
             if (baseType) {
                 const type = context.getTypeAtLocation(baseType);
                 if (!context.isInherit) {
-                    if (!reflection.extendedTypes) {
-                        reflection.extendedTypes = [];
+                    if (!reflection!.extendedTypes) {
+                        reflection!.extendedTypes = [];
                     }
-                    reflection.extendedTypes.push(this.owner.convertType(context, baseType, type));
+                    const convertedType = this.owner.convertType(context, baseType, type);
+                    if (convertedType) {
+                        reflection!.extendedTypes.push(convertedType);
+                    }
                 }
 
-                if (type && type.symbol) {
-                    type.symbol.declarations.forEach((declaration) => {
-                        context.inherit(declaration, baseType.typeArguments);
+                if (type) {
+                    const typesToInheritFrom: ts.Type[] = type.isIntersection() ? type.types : [ type ];
+
+                    typesToInheritFrom.forEach((typeToInheritFrom: ts.Type) => {
+                        typeToInheritFrom.symbol && typeToInheritFrom.symbol.declarations.forEach((declaration) => {
+                            context.inherit(declaration, baseType.typeArguments);
+                        });
                     });
                 }
             }
 
             const implementedTypes = _ts.getClassImplementsHeritageClauseElements(node);
-            if (implementedTypes) {
-                implementedTypes.forEach((implementedType) => {
-                    if (!reflection.implementedTypes) {
-                        reflection.implementedTypes = [];
-                    }
-
-                    reflection.implementedTypes.push(this.owner.convertType(context, implementedType));
-                });
+            if (implementedTypes && implementedTypes.length) {
+                const implemented = this.owner.convertTypes(context, implementedTypes);
+                reflection!.implementedTypes = (reflection!.implementedTypes || []).concat(implemented);
             }
         });
 

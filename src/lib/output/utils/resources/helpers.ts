@@ -41,7 +41,7 @@ export class HelperStack extends ResourceStack<Helper> {
             const helpers = resources[resourceName].getHelpers();
 
             for (let name in helpers) {
-                if (this.registeredNames.indexOf(name) !== -1) {
+                if (this.registeredNames.includes(name)) {
                     continue;
                 }
                 this.registeredNames.push(name);
@@ -54,7 +54,7 @@ export class HelperStack extends ResourceStack<Helper> {
     }
 
     deactivate(): boolean {
-        if (!super.activate()) {
+        if (!super.deactivate()) {
             return false;
         }
 

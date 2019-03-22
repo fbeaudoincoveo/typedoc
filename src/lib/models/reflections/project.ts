@@ -1,7 +1,6 @@
 import { SourceFile, SourceDirectory } from '../sources/index';
 import { Reflection, ReflectionKind } from './abstract';
 import { ContainerReflection } from './container';
-import { ReflectionCategory } from '../ReflectionCategory';
 
 /**
  * A reflection that represents the root of the project.
@@ -28,21 +27,17 @@ export class ProjectReflection extends ContainerReflection {
     files: SourceFile[] = [];
 
     /**
-     * All reflections categorized.
-     */
-    categories: ReflectionCategory[];
-
-    /**
      * The name of the project.
      *
-     * The name can be passed as a commandline argument or it is read from the package info.
+     * The name can be passed as a command line argument or it is read from the package info.
+     * this.name is assigned in the Reflection class.
      */
-    name: string;
+    name!: string;
 
     /**
      * The contents of the readme.md file of the project when found.
      */
-    readme: string;
+    readme?: string;
 
     /**
      * The parsed data of the package.json file of the project when found.
@@ -55,7 +50,7 @@ export class ProjectReflection extends ContainerReflection {
      * @param name  The name of the project.
      */
     constructor(name: string) {
-        super(null, name, ReflectionKind.Global);
+        super(name, ReflectionKind.Global);
     }
 
     /**
@@ -96,9 +91,9 @@ export class ProjectReflection extends ContainerReflection {
     /**
      * Try to find a reflection by its name.
      *
-     * @return The found reflection or null.
+     * @return The found reflection or undefined.
      */
-    findReflectionByName(arg: any): Reflection {
+    findReflectionByName(arg: any): Reflection | undefined {
         const names: string[] = Array.isArray(arg) ? arg : arg.split('.');
         const name = names.pop();
 
@@ -109,9 +104,8 @@ export class ProjectReflection extends ContainerReflection {
             }
 
             let depth = names.length - 1;
-            let target = reflection;
-            while (target && depth >= 0) {
-                target = target.parent;
+            let target: Reflection | undefined = reflection;
+            while ((target = target.parent) && depth >= 0) {
                 if (target.name !== names[depth]) {
                     continue search;
                 }
@@ -121,7 +115,7 @@ export class ProjectReflection extends ContainerReflection {
             return reflection;
         }
 
-        return null;
+        return undefined;
     }
 
     /**

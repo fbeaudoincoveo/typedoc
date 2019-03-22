@@ -5,25 +5,30 @@ import { Component } from '../../component';
 import { OptionsComponent } from '../options';
 import { DeclarationOption, ParameterScope, ParameterType, ParameterHint } from '../declaration';
 
+/**
+ * Discovers and contributes options declared by TypeScript.
+ *
+ * typedoc accepts many of the same options as TypeScript itself, so they must be parsed
+ * from TypeScript's metadata and declared on typedoc's Option parser.
+ */
 @Component({name: 'options:typescript'})
 export class TypeScriptSource extends OptionsComponent {
-    private declarations: DeclarationOption[];
+    private declarations!: DeclarationOption[];
 
     /**
      * A list of all TypeScript parameters that should be ignored.
      */
     static IGNORED: string[] = [
         'out', 'version', 'help',
-        'watch', 'declaration', 'declarationDir', 'mapRoot',
+        'watch', 'declaration', 'declarationDir', 'declarationMap', 'mapRoot',
         'sourceMap', 'inlineSources', 'removeComments'
     ];
 
     initialize() {
-        const ignored = TypeScriptSource.IGNORED;
         this.declarations = [];
 
         for (let declaration of _ts.optionDeclarations) {
-            if (ignored.indexOf(declaration.name) === -1) {
+            if (!TypeScriptSource.IGNORED.includes(declaration.name)) {
                 this.addTSOption(declaration);
             }
         }
@@ -40,7 +45,7 @@ export class TypeScriptSource extends OptionsComponent {
         const param: DeclarationOption = {
             name:      option.name,
             short:     option.shortName,
-            help:      option.description ? option.description.key : null,
+            help:      option.description ? option.description.key : '',
             scope:     ParameterScope.TypeScript,
             component: this.componentName
         };

@@ -5,14 +5,14 @@ import { Component, ConverterComponent } from '../components';
 import { Converter } from '../converter';
 import { Context } from '../context';
 
-const camelCaseToHyphenRegex = /([A-Z])|\W+(\w)/g;
+const camelCaseToHyphenRegex = /([A-Z])|\W+(\w)/g; // Coveo-specific
 
 /**
  * A handler that sorts and groups the found reflections in the resolving phase.
  *
  * The handler sets the ´groups´ property of all reflections.
  */
-@Component({ name: 'group' })
+@Component({name: 'group'})
 export class GroupPlugin extends ConverterComponent {
     /**
      * Define the sort order of reflections.
@@ -49,9 +49,9 @@ export class GroupPlugin extends ConverterComponent {
     /**
      * Define the singular name of individual reflection kinds.
      */
-    static SINGULARS = (function () {
+    static SINGULARS = (function() {
         const singulars = {};
-        singulars[ReflectionKind.Enum] = 'Enumeration';
+        singulars[ReflectionKind.Enum]       = 'Enumeration';
         singulars[ReflectionKind.EnumMember] = 'Enumeration member';
         return singulars;
     })();
@@ -59,11 +59,11 @@ export class GroupPlugin extends ConverterComponent {
     /**
      * Define the plural name of individual reflection kinds.
      */
-    static PLURALS = (function () {
+    static PLURALS = (function() {
         const plurals = {};
-        plurals[ReflectionKind.Class] = 'Classes';
-        plurals[ReflectionKind.Property] = 'Properties';
-        plurals[ReflectionKind.Enum] = 'Enumerations';
+        plurals[ReflectionKind.Class]      = 'Classes';
+        plurals[ReflectionKind.Property]   = 'Properties';
+        plurals[ReflectionKind.Enum]       = 'Enumerations';
         plurals[ReflectionKind.EnumMember] = 'Enumeration members';
         plurals[ReflectionKind.TypeAlias] = 'Type aliases';
         return plurals;
@@ -89,10 +89,9 @@ export class GroupPlugin extends ConverterComponent {
         reflection.kindString = GroupPlugin.getKindSingular(reflection.kind);
 
         if (reflection instanceof ContainerReflection) {
-            const container = <ContainerReflection>reflection;
-            if (container.children && container.children.length > 0) {
-                container.children.sort(GroupPlugin.sortCallback);
-                container.groups = GroupPlugin.getReflectionGroups(container.children);
+            if (reflection.children && reflection.children.length > 0) {
+                reflection.children.sort(GroupPlugin.sortCallback);
+                reflection.groups = GroupPlugin.getReflectionGroups(reflection.children);
             }
         }
     }
@@ -148,7 +147,7 @@ export class GroupPlugin extends ConverterComponent {
             }
 
             const group = new ReflectionGroup(GroupPlugin.getKindPlural(child.kind), child.kind);
-            if (child.flags.isCoveoComponentOptions) {
+            if (child.flags.isCoveoComponentOptions) { // Coveo-specific
                 group.title = 'Component Options';
             }
             group.children.push(child);
@@ -186,7 +185,7 @@ export class GroupPlugin extends ConverterComponent {
                 allExternal = child.flags.isExternal && allExternal;
 
                 if (child instanceof DeclarationReflection) {
-                    allInherited = child.inheritedFrom && allInherited;
+                    allInherited = !!child.inheritedFrom && allInherited;
                 } else {
                     allInherited = false;
                 }
@@ -202,6 +201,7 @@ export class GroupPlugin extends ConverterComponent {
         return groups;
     }
 
+    // Coveo-specific
     private static getMarkupValueExampleFromType(name: string, ref: Reflection): string[] {
         let ret = [];
         if (ref && ref['type'] && ref['type'].constructor.name.toLowerCase() == 'uniontype') {

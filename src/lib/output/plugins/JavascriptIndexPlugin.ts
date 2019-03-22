@@ -44,7 +44,7 @@ export class JavascriptIndexPlugin extends RendererComponent {
 
             let parent = reflection.parent;
             if (parent instanceof ProjectReflection) {
-                parent = null;
+                parent = undefined;
             }
 
             const row: any = {
@@ -72,6 +72,6 @@ export class JavascriptIndexPlugin extends RendererComponent {
             typedoc.search = typedoc.search || {};
             typedoc.search.data = ${JSON.stringify({kinds: kinds, rows: rows})};`;
 
-        writeFile(fileName, data, true);
+        writeFile(fileName, data, false);
     }
 }

@@ -1,7 +1,7 @@
 import * as ts from 'typescript';
 import * as _ts from '../ts-internal';
 import * as _ from 'lodash';
-import * as Path from 'path';
+import * as Path from 'path'; // Coveo-specific
 
 import { Application } from '../application';
 import { ParameterType } from '../utils/options/declaration';
@@ -11,9 +11,10 @@ import { ConverterComponent, ConverterNodeComponent, ConverterTypeComponent, Typ
 import { CompilerHost } from './utils/compiler-host';
 import { Component, Option, ChildableComponent, ComponentClass } from '../utils/component';
 import { normalizePath } from '../utils/fs';
-import { getRawComment, parseComment } from './factories/comment';
+import { getRawComment, parseComment } from './factories/comment'; // Coveo-specific
 import { CommentTag } from '../models/comments';
 import { ReflectionFlag, DeclarationReflection, ReflectionKind } from '../..';
+import { createMinimatch } from '../utils/paths';
 
 /**
  * Result structure of the [[Converter.convert]] method.
@@ -42,56 +43,69 @@ export class Converter extends ChildableComponent<Application, ConverterComponen
         name: 'name',
         help: 'Set the name of the project that will be used in the header of the template.'
     })
-    name: string;
+    name!: string;
 
     @Option({
         name: 'externalPattern',
-        help: 'Define a pattern for files that should be considered being external.'
+        help: 'Define patterns for files that should be considered being external.',
+        type: ParameterType.Array
     })
-    externalPattern: string;
+    externalPattern!: Array<string>;
 
     @Option({
         name: 'includeDeclarations',
         help: 'Turn on parsing of .d.ts declaration files.',
         type: ParameterType.Boolean
     })
-    includeDeclarations: boolean;
+    includeDeclarations!: boolean;
 
     @Option({
         name: 'excludeExternals',
         help: 'Prevent externally resolved TypeScript files from being documented.',
         type: ParameterType.Boolean
     })
-    excludeExternals: boolean;
+    excludeExternals!: boolean;
 
     @Option({
         name: 'excludeNotExported',
         help: 'Prevent symbols that are not exported from being documented.',
         type: ParameterType.Boolean
     })
-    excludeNotExported: boolean;
+    excludeNotExported!: boolean;
 
     @Option({
         name: 'excludePrivate',
         help: 'Ignores private variables and methods',
         type: ParameterType.Boolean
     })
-    excludePrivate: boolean;
+    excludePrivate!: boolean;
 
     @Option({
         name: 'excludeProtected',
         help: 'Ignores protected variables and methods',
         type: ParameterType.Boolean
     })
-    excludeProtected: boolean;
+    excludeProtected!: boolean;
 
-    public compilerHost: CompilerHost;
+    /**
+     * Defined in the initialize method
+     */
+    private compilerHost!: CompilerHost;
 
-    private nodeConverters: {[syntaxKind: number]: ConverterNodeComponent<ts.Node>};
+    /**
+     * Defined in the initialize method
+     */
+    private nodeConverters!: {[syntaxKind: number]: ConverterNodeComponent<ts.Node>};
 
-    private typeNodeConverters: TypeNodeConverter<ts.Type, ts.Node>[];
+    /**
+     * Defined in the initialize method
+     */
+    private typeNodeConverters!: TypeNodeConverter<ts.Type, ts.Node>[];
 
-    private typeTypeConverters: TypeTypeConverter<ts.Type>[];
+    /**
+     * Defined in the initialize method
+     */
+    private typeTypeConverters!: TypeTypeConverter<ts.Type>[];
 
     /**
      * General events
@@ -224,7 +238,7 @@ export class Converter extends ChildableComponent<Application, ConverterComponen
         }
     }
 
-    removeComponent(name: string): ConverterComponent {
+    removeComponent(name: string): ConverterComponent | undefined {
         const component = super.removeComponent(name);
         if (component instanceof ConverterNodeComponent) {
             this.removeNodeConverter(component);
@@ -299,18 +313,18 @@ export class Converter extends ChildableComponent<Application, ConverterComponen
      *
      * @param context  The context object describing the current state the converter is in.
      * @param node     The compiler node that should be analyzed.
-     * @return The resulting reflection or NULL.
+     * @return The resulting reflection or undefined.
      */
-    convertNode(context: Context, node: ts.Node): Reflection {
-        if (context.visitStack.indexOf(node) !== -1) {
-            return null;
+    convertNode(context: Context, node: ts.Node): Reflection | undefined {
+        if (context.visitStack.includes(node)) {
+            return;
         }
 
         const oldVisitStack = context.visitStack;
         context.visitStack = oldVisitStack.slice();
         context.visitStack.push(node);
 
-        let result: Reflection;
+        let result: Reflection | undefined;
         if (node.kind in this.nodeConverters) {
             result = this.nodeConverters[node.kind].convert(context, node);
         }
@@ -373,7 +387,7 @@ export class Converter extends ChildableComponent<Application, ConverterComponen
      * @param type  The type of the node if already known.
      * @returns The TypeDoc type reflection representing the given node and type.
      */
-    convertType(context: Context, node?: ts.Node, type?: ts.Type): Type {
+    convertType(context: Context, node?: ts.Node, type?: ts.Type): Type | undefined {
         // Run all node based type conversions
         if (node) {
             type = type || context.getTypeAtLocation(node);
@@ -396,6 +410,23 @@ export class Converter extends ChildableComponent<Application, ConverterComponen
     }
 
     /**
+     * Helper function to convert multiple types at once, filtering out types which fail to convert.
+     *
+     * @param context
+     * @param nodes
+     */
+    convertTypes(context: Context, nodes: ReadonlyArray<ts.Node> = [], types: ReadonlyArray<ts.Type> = []): Type[] {
+        const result: Type[] = [];
+        _.zip(nodes, types).forEach(([node, type]) => {
+            const converted = this.convertType(context, node, type);
+            if (converted) {
+                result.push(converted);
+            }
+        });
+        return result;
+    }
+
+    /**
      * Compile the files within the given context and convert the compiler symbols to reflections.
      *
      * @param context  The context object describing the current state the converter is in.
@@ -404,6 +435,7 @@ export class Converter extends ChildableComponent<Application, ConverterComponen
     private compile(context: Context): ReadonlyArray<ts.Diagnostic> {
         const program = context.program;
 
+<<<<<<< HEAD
         const appDirectory = this.compilerHost.currentDirectory;        
         program.getSourceFiles().forEach((sourceFile) => {
             if(!Path.isAbsolute(sourceFile.fileName)) {
@@ -413,21 +445,35 @@ export class Converter extends ChildableComponent<Application, ConverterComponen
         });
 
         let diagnostics = program.getOptionsDiagnostics();
+=======
+        const exclude = createMinimatch(this.application.exclude || []);
+        const isExcluded = (file: ts.SourceFile) => exclude.some(mm => mm.match(file.fileName));
+
+        const includedSourceFiles = program.getSourceFiles()
+            .filter(file => !isExcluded(file));
+        const isRelevantError = ({ file }: ts.Diagnostic) => !file || includedSourceFiles.includes(file);
+
+        includedSourceFiles.forEach((sourceFile) => {
+            this.convertNode(context, sourceFile);
+        });
+
+        let diagnostics = program.getOptionsDiagnostics().filter(isRelevantError);
+>>>>>>> 49602d913d9dc8588e03a404e0b5bd3651bd003b
         if (diagnostics.length) {
             return diagnostics;
         }
 
-        diagnostics = program.getSyntacticDiagnostics();
+        diagnostics = program.getSyntacticDiagnostics().filter(isRelevantError);
         if (diagnostics.length) {
             return diagnostics;
         }
 
-        diagnostics = program.getGlobalDiagnostics();
+        diagnostics = program.getGlobalDiagnostics().filter(isRelevantError);
         if (diagnostics.length) {
             return diagnostics;
         }
 
-        diagnostics = program.getSemanticDiagnostics();
+        diagnostics = program.getSemanticDiagnostics().filter(isRelevantError);
         if (diagnostics.length) {
             return diagnostics;
         }

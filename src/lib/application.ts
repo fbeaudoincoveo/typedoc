@@ -20,8 +20,9 @@ import { Renderer } from './output/renderer';
 import { Serializer } from './serialization';
 import { ProjectReflection } from './models/index';
 import { Logger, ConsoleLogger, CallbackLogger, PluginHost, writeFile } from './utils/index';
+import { createMinimatch } from './utils/paths';
 
-import { AbstractComponent, ChildableComponent, Component, Option } from './utils/component';
+import { AbstractComponent, ChildableComponent, Component, Option, DUMMY_APPLICATION_OWNER } from './utils/component';
 import { Options, OptionsReadMode, OptionsReadResult } from './utils/options/index';
 import { ParameterType } from './utils/options/declaration';
 
@@ -39,7 +40,7 @@ import { ParameterType } from './utils/options/declaration';
  * and emit a series of events while processing the project. Subscribe to these Events
  * to control the application flow or alter the output.
  */
-@Component({ name: 'application', internal: true })
+@Component({name: 'application', internal: true})
 export class Application extends ChildableComponent<Application, AbstractComponent<Application>> {
     options: Options;
 
@@ -65,7 +66,7 @@ export class Application extends ChildableComponent<Application, AbstractCompone
 
     plugins: PluginHost;
 
-    notSupportedFeaturesConfig: {};
+    notSupportedFeaturesConfig: {}; // Coveo-specific
 
     @Option({
         name: 'logger',
@@ -73,22 +74,21 @@ export class Application extends ChildableComponent<Application, AbstractCompone
         defaultValue: 'console',
         type: ParameterType.Mixed
     })
-    loggerType: string | Function;
+    loggerType!: string|Function;
 
     @Option({
         name: 'ignoreCompilerErrors',
         help: 'Should TypeDoc generate documentation pages even after the compiler has returned errors?',
         type: ParameterType.Boolean
     })
-    ignoreCompilerErrors: boolean;
+    ignoreCompilerErrors!: boolean;
 
     @Option({
         name: 'exclude',
         help: 'Define patterns for excluded files when specifying paths.',
         type: ParameterType.Array
     })
-    exclude: Array<string>;
-
+    exclude!: Array<string>;
 
     /**
      * The version number of TypeDoc.
@@ -101,18 +101,18 @@ export class Application extends ChildableComponent<Application, AbstractCompone
      * @param options An object containing the options that should be used.
      */
     constructor(options?: Object) {
-        super(null);
+        super(DUMMY_APPLICATION_OWNER);
 
-        this.logger = new ConsoleLogger();
+        this.logger    = new ConsoleLogger();
         this.converter = this.addComponent<Converter>('converter', Converter);
         this.serializer = this.addComponent<Serializer>('serializer', Serializer);
-        this.renderer = this.addComponent<Renderer>('renderer', Renderer);
-        this.plugins = this.addComponent('plugins', PluginHost);
-        this.options = this.addComponent('options', Options);
+        this.renderer  = this.addComponent<Renderer>('renderer', Renderer);
+        this.plugins   = this.addComponent('plugins', PluginHost);
+        this.options   = this.addComponent('options', Options);
 
         this.bootstrap(options);
 
-        this.notSupportedFeaturesConfig = (<any>options).notSupportedFeaturesConfig
+        this.notSupportedFeaturesConfig = (<any>options).notSupportedFeaturesConfig // Coveo-specific
     }
 
     /**
@@ -125,13 +125,13 @@ export class Application extends ChildableComponent<Application, AbstractCompone
 
         const logger = this.loggerType;
         if (typeof logger === 'function') {
-            this.logger = new CallbackLogger(<any>logger);
+            this.logger = new CallbackLogger(<any> logger);
         } else if (logger === 'none') {
             this.logger = new Logger();
         }
 
         this.plugins.load();
-        return this.options.read(options, OptionsReadMode.Fetch);
+        return this.options.read(this.options.getRawValues(), OptionsReadMode.Fetch);
     }
 
     /**
@@ -162,9 +162,9 @@ export class Application extends ChildableComponent<Application, AbstractCompone
      * Run the converter for the given set of files and return the generated reflections.
      *
      * @param src  A list of source that should be compiled and converted.
-     * @returns An instance of ProjectReflection on success, NULL otherwise.
+     * @returns An instance of ProjectReflection on success, undefined otherwise.
      */
-    public convert(src: string[]): ProjectReflection {
+    public convert(src: string[]): ProjectReflection | undefined {
         this.logger.writeln('Using TypeScript %s from %s', this.getTypeScriptVersion(), this.getTypeScriptPath());
 
         const result = this.converter.convert(src);
@@ -174,7 +174,7 @@ export class Application extends ChildableComponent<Application, AbstractCompone
                 this.logger.resetErrors();
                 return result.project;
             } else {
-                return null;
+                return;
             }
         } else {
             return result.project;
@@ -197,7 +197,7 @@ export class Application extends ChildableComponent<Application, AbstractCompone
      * @param out  The path the documentation should be written to.
      * @returns TRUE if the documentation could be generated successfully, otherwise FALSE.
      */
-    public generateDocs(input: any, out: string): boolean {
+    public generateDocs(input: ProjectReflection | string[], out: string): boolean {
         const project = input instanceof ProjectReflection ? input : this.convert(input);
         if (!project) {
             return false;
@@ -230,7 +230,7 @@ export class Application extends ChildableComponent<Application, AbstractCompone
      * @param out  The path and file name of the target file.
      * @returns TRUE if the json file could be written successfully, otherwise FALSE.
      */
-    public generateJson(input: any, out: string, linkPrefix?: string): boolean {
+    public generateJson(input: any, out: string, linkPrefix?: string): boolean { // Coveo-specific
         const project = input instanceof ProjectReflection ? input : this.convert(input);
         if (!project) {
             return false;
@@ -239,13 +239,13 @@ export class Application extends ChildableComponent<Application, AbstractCompone
         out = Path.resolve(out);
         const eventData = { outputDirectory: Path.dirname(out), outputFile: Path.basename(out) };
         const ser = this.serializer.projectToObject(project, { begin: eventData, end: eventData });
-        const prettifiedJson = this.prettifyJson(ser, project, linkPrefix)
+        const prettifiedJson = this.prettifyJson(ser, project, linkPrefix) // Coveo-specific
         writeFile(out, JSON.stringify(prettifiedJson, null, '\t'), false);
         this.logger.success('JSON written to %s', out);
 
         return true;
     }
-
+    // Coveo-specific
     private prettifyJson(obj: any, project: ProjectReflection, linkPrefix?: string) {
         let getHighlighted = function (text, lang) {
             try {
@@ -311,6 +311,7 @@ export class Application extends ChildableComponent<Application, AbstractCompone
         return nodeList;
     }
 
+    // Coveo-specific
     private generateConstrainedValues(str: any) {
         let constrainedValues = [];
 
@@ -333,6 +334,7 @@ export class Application extends ChildableComponent<Application, AbstractCompone
         return constrainedValues;
     }
 
+    // Coveo-specific
     private generateMiscAttributes(str: any) {
         var otherMiscAttributes = {};
         if (str.defaultValue) {
@@ -362,20 +364,24 @@ export class Application extends ChildableComponent<Application, AbstractCompone
      * @param inputFiles  The list of files that should be expanded.
      * @returns  The list of input files with expanded directories.
      */
-    public expandInputFiles(inputFiles?: string[]): string[] {
+    public expandInputFiles(inputFiles: string[] = []): string[] {
         let files: string[] = [];
-        const exclude: Array<IMinimatch> = this.exclude ? this.exclude.map(pattern => new Minimatch(pattern)) : [];
+
+        const exclude = this.exclude
+          ? createMinimatch(this.exclude)
+          : [];
 
         function isExcluded(fileName: string): boolean {
             return exclude.some(mm => mm.match(fileName));
         }
 
+        const supportedFileRegex = this.options.getCompilerOptions().allowJs ? /\.[tj]sx?$/ : /\.tsx?$/;
         function add(dirname: string) {
             FS.readdirSync(dirname).forEach((file) => {
                 const realpath = Path.join(dirname, file);
                 if (FS.statSync(realpath).isDirectory()) {
                     add(realpath);
-                } else if (/\.tsx?$/.test(realpath)) {
+                } else if (supportedFileRegex.test(realpath)) {
                     if (isExcluded(realpath.replace(/\\/g, '/'))) {
                         return;
                     }
