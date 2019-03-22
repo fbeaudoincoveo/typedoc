@@ -3,7 +3,7 @@ import { ConverterComponent } from '../components';
 export declare class TypePlugin extends ConverterComponent {
     reflections: DeclarationReflection[];
     initialize(): void;
-    private onResolve(context, reflection);
-    private postpone(reflection);
-    private onResolveEnd(context);
+    private onResolve;
+    private postpone;
+    private onResolveEnd;
 }

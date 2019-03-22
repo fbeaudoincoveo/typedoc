@@ -380,9 +380,9 @@ export abstract class Reflection {
      */
     cssClasses?: string;
 
-    markupExample: string; // Coveo-specific
+    markupExample: string = ''; // Coveo-specific
 
-    notSupportedIn: string[]; // Coveo-specific
+    notSupportedIn?: string[]; // Coveo-specific
 
     /**
      * Url safe alias for this reflection.

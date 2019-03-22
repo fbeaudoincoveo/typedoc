@@ -6,7 +6,7 @@ export declare class ReferenceConverter extends ConverterTypeComponent implement
     priority: number;
     supportsNode(context: Context, node: ts.TypeReferenceNode, type: ts.TypeReference): boolean;
     supportsType(context: Context, type: ts.TypeReference): boolean;
-    convertNode(context: Context, node: ts.TypeReferenceNode, type: ts.TypeReference): Type;
-    convertType(context: Context, type: ts.TypeReference): Type;
-    private convertLiteral(context, symbol, node?);
+    convertNode(context: Context, node: ts.TypeReferenceNode, type: ts.TypeReference): Type | undefined;
+    convertType(context: Context, type: ts.TypeReference): Type | undefined;
+    private convertLiteral;
 }

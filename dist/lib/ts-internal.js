@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var ts = require("typescript");
-var tsany = ts;
+const ts = require("typescript");
+const tsany = ts;
 function createCompilerDiagnostic() {
     return tsany.createCompilerDiagnostic.apply(this, arguments);
 }
@@ -34,8 +34,7 @@ function getSourceFileOfNode(node) {
     return tsany.getSourceFileOfNode.apply(this, arguments);
 }
 exports.getSourceFileOfNode = getSourceFileOfNode;
-function getTextOfNode(node, includeTrivia) {
-    if (includeTrivia === void 0) { includeTrivia = false; }
+function getTextOfNode(node, includeTrivia = false) {
     return tsany.getTextOfNode.apply(this, arguments);
 }
 exports.getTextOfNode = getTextOfNode;
@@ -51,10 +50,10 @@ function isBindingPattern(node) {
     return tsany.isBindingPattern.apply(this, arguments);
 }
 exports.isBindingPattern = isBindingPattern;
-function getClassExtendsHeritageClauseElement(node) {
-    return tsany.getClassExtendsHeritageClauseElement.apply(this, arguments);
+function getEffectiveBaseTypeNode(node) {
+    return tsany.getEffectiveBaseTypeNode.apply(this, arguments);
 }
-exports.getClassExtendsHeritageClauseElement = getClassExtendsHeritageClauseElement;
+exports.getEffectiveBaseTypeNode = getEffectiveBaseTypeNode;
 function getClassImplementsHeritageClauseElements(node) {
     return tsany.getClassImplementsHeritageClauseElements.apply(this, arguments);
 }

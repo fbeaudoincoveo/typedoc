@@ -1,23 +1,28 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var ts = require("typescript");
-var index_1 = require("../../models/index");
-var converter_1 = require("../converter");
-var reference_1 = require("./reference");
-var comment_1 = require("./comment");
-var nonStaticKinds = [
+const ts = require("typescript");
+const index_1 = require("../../models/index");
+const converter_1 = require("../converter");
+const reference_1 = require("./reference");
+const comment_1 = require("./comment");
+const nonStaticKinds = [
     index_1.ReflectionKind.Class,
     index_1.ReflectionKind.Interface,
     index_1.ReflectionKind.Module
 ];
+const nonStaticMergeKinds = [
+    ts.SyntaxKind.ClassDeclaration,
+    ts.SyntaxKind.ClassExpression,
+    ts.SyntaxKind.InterfaceDeclaration
+];
 function createDeclaration(context, node, kind, name) {
-    var container = context.scope;
-    if (!(container instanceof index_1.ContainerReflection)) {
+    if (!(context.scope instanceof index_1.ContainerReflection)) {
         throw new Error('Expected container reflection.');
     }
+    const container = context.scope;
     if (kind != index_1.ReflectionKind.Module && kind != index_1.ReflectionKind.ExternalModule) {
         if (comment_1.getRawComment(node) == '' || comment_1.getRawComment(node) == null) {
-            return null;
+            return;
         }
     }
     if (!name) {
@@ -28,11 +33,11 @@ function createDeclaration(context, node, kind, name) {
             name = node.symbol.name;
         }
         else {
-            return null;
+            return;
         }
     }
-    var modifiers = ts.getCombinedModifierFlags(node);
-    var isExported;
+    const modifiers = ts.getCombinedModifierFlags(node);
+    let isExported;
     if (container.kindOf([index_1.ReflectionKind.Module, index_1.ReflectionKind.ExternalModule])) {
         isExported = false;
     }
@@ -43,41 +48,41 @@ function createDeclaration(context, node, kind, name) {
         isExported = true;
     }
     else if (node.parent && node.parent.kind === ts.SyntaxKind.VariableDeclarationList) {
-        var parentModifiers = ts.getCombinedModifierFlags(node.parent.parent);
+        const parentModifiers = ts.getCombinedModifierFlags(node.parent.parent);
         isExported = isExported || !!(parentModifiers & ts.ModifierFlags.Export);
     }
     else {
         isExported = isExported || !!(modifiers & ts.ModifierFlags.Export);
     }
     if (!isExported && context.converter.excludeNotExported) {
-        return null;
+        return;
     }
-    var isPrivate = !!(modifiers & ts.ModifierFlags.Private);
+    const isPrivate = !!(modifiers & ts.ModifierFlags.Private);
     if (context.isInherit && isPrivate) {
-        return null;
+        return;
     }
-    var isConstructorProperty = false;
-    var isStatic = false;
-    if (nonStaticKinds.indexOf(kind) === -1) {
+    let isConstructorProperty = false;
+    let isStatic = false;
+    if (!nonStaticKinds.includes(kind)) {
         isStatic = !!(modifiers & ts.ModifierFlags.Static);
         if (container.kind === index_1.ReflectionKind.Class) {
             if (node.parent && node.parent.kind === ts.SyntaxKind.Constructor) {
                 isConstructorProperty = true;
             }
-            else if (!node.parent || node.parent.kind !== ts.SyntaxKind.ClassDeclaration) {
+            else if (!node.parent || !nonStaticMergeKinds.includes(node.parent.kind)) {
                 isStatic = true;
             }
         }
     }
-    var child;
-    var children = container.children = container.children || [];
-    children.forEach(function (n) {
-        if (n.name === name && n.flags.isStatic === isStatic) {
+    let child;
+    const children = container.children = container.children || [];
+    children.forEach((n) => {
+        if (n.name === name && n.flags.isStatic === isStatic && canMergeReflectionsByKind(n.kind, kind)) {
             child = n;
         }
     });
     if (!child) {
-        child = new index_1.DeclarationReflection(container, name, kind);
+        child = new index_1.DeclarationReflection(name, kind, container);
         child.setFlag(index_1.ReflectionFlag.Static, isStatic);
         child.setFlag(index_1.ReflectionFlag.Private, isPrivate);
         child.setFlag(index_1.ReflectionFlag.ConstructorProperty, isConstructorProperty);
@@ -98,7 +103,7 @@ function createDeclaration(context, node, kind, name) {
 }
 exports.createDeclaration = createDeclaration;
 function setupDeclaration(context, reflection, node) {
-    var modifiers = ts.getCombinedModifierFlags(node);
+    const modifiers = ts.getCombinedModifierFlags(node);
     reflection.setFlag(index_1.ReflectionFlag.External, context.isExternal);
     reflection.setFlag(index_1.ReflectionFlag.Protected, !!(modifiers & ts.ModifierFlags.Protected));
     reflection.setFlag(index_1.ReflectionFlag.Public, !!(modifiers & ts.ModifierFlags.Public));
@@ -107,32 +112,40 @@ function setupDeclaration(context, reflection, node) {
         (node.parent === context.inheritParent || reflection.flags.isConstructorProperty)) {
         if (!reflection.inheritedFrom) {
             reflection.inheritedFrom = reference_1.createReferenceType(context, node.symbol, true);
-            reflection.getAllSignatures().forEach(function (signature) {
+            reflection.getAllSignatures().forEach((signature) => {
                 signature.inheritedFrom = reference_1.createReferenceType(context, node.symbol, true);
             });
         }
     }
     return reflection;
 }
+function canMergeReflectionsByKind(kind1, kind2) {
+    if ((kind1 & index_1.ReflectionKind.SomeType && kind2 & index_1.ReflectionKind.SomeValue)
+        ||
+            (kind2 & index_1.ReflectionKind.SomeType && kind1 & index_1.ReflectionKind.SomeValue)) {
+        return false;
+    }
+    return true;
+}
 function mergeDeclarations(context, reflection, node, kind) {
     if (reflection.kind !== kind) {
-        var weights = [index_1.ReflectionKind.Module, index_1.ReflectionKind.Enum, index_1.ReflectionKind.Class];
-        var kindWeight = weights.indexOf(kind);
-        var childKindWeight = weights.indexOf(reflection.kind);
+        const weights = [index_1.ReflectionKind.Module, index_1.ReflectionKind.Enum, index_1.ReflectionKind.Class];
+        const kindWeight = weights.indexOf(kind);
+        const childKindWeight = weights.indexOf(reflection.kind);
         if (kindWeight > childKindWeight) {
             reflection.kind = kind;
         }
     }
     if (context.isInherit &&
-        context.inherited.indexOf(reflection.name) !== -1 &&
+        (context.inherited || []).includes(reflection.name) &&
         (node.parent === context.inheritParent || reflection.flags.isConstructorProperty)) {
         if (!reflection.overwrites) {
             reflection.overwrites = reference_1.createReferenceType(context, node.symbol, true);
-            reflection.getAllSignatures().forEach(function (signature) {
+            reflection.getAllSignatures().forEach((signature) => {
                 signature.overwrites = reference_1.createReferenceType(context, node.symbol, true);
             });
         }
-        return null;
+        return;
     }
     return reflection;
 }

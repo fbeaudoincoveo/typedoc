@@ -1,12 +1,12 @@
 import { ConverterComponent } from '../components';
 export declare class PackagePlugin extends ConverterComponent {
     readme: string;
-    private readmeFile;
-    private packageFile;
+    private readmeFile?;
+    private packageFile?;
     private visited;
-    private noReadmeFile;
+    private noReadmeFile?;
     initialize(): void;
-    private onBegin(context);
-    private onBeginDocument(context, reflection, node?);
-    private onBeginResolve(context);
+    private onBegin;
+    private onBeginDocument;
+    private onBeginResolve;
 }

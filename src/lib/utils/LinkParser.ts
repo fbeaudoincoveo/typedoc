@@ -44,9 +44,7 @@ export class LinkParser {
       var target = split.target;
       var caption = leading || split.caption;
 
-      var monospace: boolean;
-      if (tagName == 'linkcode') monospace = true;
-      if (tagName == 'linkplain') monospace = false;
+      var monospace: boolean = tagName == 'linkcode';
 
       return this.buildLink(match, target, caption, monospace);
     });

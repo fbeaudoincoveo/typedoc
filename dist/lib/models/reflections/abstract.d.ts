@@ -34,8 +34,11 @@ export declare enum ReflectionKind {
     FunctionOrMethod = 2112,
     SomeSignature = 1601536,
     SomeModule = 3,
+    SomeType = 4391168,
+    SomeValue = 2097248
 }
 export declare enum ReflectionFlag {
+    None = 0,
     Private = 1,
     Protected = 2,
     Public = 4,
@@ -50,33 +53,36 @@ export declare enum ReflectionFlag {
     Abstract = 2048,
     Const = 4096,
     Let = 8192,
-    CoveoComponentOptions = 16384,
+    CoveoComponentOptions = 16384
 }
-export interface ReflectionFlags extends Array<string> {
-    flags?: ReflectionFlag;
-    isPrivate?: boolean;
-    isProtected?: boolean;
-    isPublic?: boolean;
-    isStatic?: boolean;
-    isExported?: boolean;
-    isExternal?: boolean;
-    isOptional?: boolean;
-    isRest?: boolean;
-    hasExportAssignment?: boolean;
-    isConstructorProperty?: boolean;
-    isAbstract?: boolean;
-    isConst?: boolean;
-    isLet?: boolean;
-    isCoveoComponentOptions?: boolean;
+export declare class ReflectionFlags extends Array<string> {
+    private flags;
+    hasFlag(flag: ReflectionFlag): boolean;
+    readonly isPrivate: boolean;
+    readonly isProtected: boolean;
+    readonly isPublic: boolean;
+    readonly isStatic: boolean;
+    readonly isExported: boolean;
+    readonly isExternal: boolean;
+    readonly isOptional: boolean;
+    readonly isRest: boolean;
+    readonly hasExportAssignment: boolean;
+    readonly isConstructorProperty: boolean;
+    readonly isAbstract: boolean;
+    readonly isConst: boolean;
+    readonly isLet: boolean;
+    readonly isCoveoComponentOptions: boolean;
+    setFlag(flag: ReflectionFlag, set: boolean): void;
+    private setSingleFlag;
 }
 export interface DefaultValueContainer extends Reflection {
-    defaultValue: string;
+    defaultValue?: string;
 }
 export interface TypeContainer extends Reflection {
-    type: Type;
+    type?: Type;
 }
 export interface TypeParameterContainer extends Reflection {
-    typeParameters: TypeParameterReflection[];
+    typeParameters?: TypeParameterReflection[];
 }
 export declare enum TraverseProperty {
     Children = 0,
@@ -86,7 +92,7 @@ export declare enum TraverseProperty {
     Signatures = 4,
     IndexSignature = 5,
     GetSignature = 6,
-    SetSignature = 7,
+    SetSignature = 7
 }
 export interface TraverseCallback {
     (reflection: Reflection, property: TraverseProperty): void;
@@ -101,24 +107,23 @@ export declare abstract class Reflection {
     name: string;
     originalName: string;
     kind: ReflectionKind;
-    kindString: string;
+    kindString?: string;
     flags: ReflectionFlags;
-    parent: Reflection;
-    comment: Comment;
-    sources: SourceReference[];
-    decorators: Decorator[];
-    decorates: Type[];
-    url: string;
-    anchor: string;
-    hasOwnDocument: boolean;
-    cssClasses: string;
+    parent?: Reflection;
+    comment?: Comment;
+    sources?: SourceReference[];
+    decorators?: Decorator[];
+    decorates?: Type[];
+    url?: string;
+    anchor?: string;
+    hasOwnDocument?: boolean;
+    cssClasses?: string;
     markupExample: string;
-    notSupportedIn: string[];
-    private _alias;
-    private _aliases;
-    constructor(parent?: Reflection, name?: string, kind?: ReflectionKind);
-    kindOf(kind: ReflectionKind): boolean;
-    kindOf(kind: ReflectionKind[]): boolean;
+    notSupportedIn?: string[];
+    private _alias?;
+    private _aliases?;
+    constructor(name: string, kind: ReflectionKind, parent?: Reflection);
+    kindOf(kind: ReflectionKind | ReflectionKind[]): boolean;
     getFullName(separator?: string): string;
     setFlag(flag: ReflectionFlag, value?: boolean): void;
     getAlias(): string;
@@ -127,8 +132,7 @@ export declare abstract class Reflection {
     getChildByName(name: string): Reflection;
     getChildByName(names: string[]): Reflection;
     isProject(): boolean;
-    findReflectionByName(name: string): Reflection;
-    findReflectionByName(names: string[]): Reflection;
+    findReflectionByName(arg: string | string[]): Reflection | undefined;
     traverse(callback: TraverseCallback): void;
     toObject(): any;
     toString(): string;

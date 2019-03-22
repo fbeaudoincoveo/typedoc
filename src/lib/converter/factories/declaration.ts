@@ -4,6 +4,7 @@ import { ContainerReflection, DeclarationReflection, ReflectionFlag, ReflectionK
 import { Context } from '../context';
 import { Converter } from '../converter';
 import { createReferenceType } from './reference';
+import { getRawComment } from './comment';
 
 /**
  * List of reflection kinds that never should be static.
@@ -39,9 +40,9 @@ export function createDeclaration(context: Context, node: ts.Declaration, kind: 
     }
     const container = context.scope;
 
-    if(kind != ReflectionKind.Module && kind != ReflectionKind.ExternalModule) {
+    if (kind != ReflectionKind.Module && kind != ReflectionKind.ExternalModule) {
         if (getRawComment(node) == '' || getRawComment(node) == null) {
-            return null;
+            return;
         }
     }
 

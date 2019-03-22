@@ -6,12 +6,12 @@ export declare class GroupPlugin extends ConverterComponent {
     static SINGULARS: {};
     static PLURALS: {};
     initialize(): void;
-    private onResolve(context, reflection);
-    private onEndResolve(context);
+    private onResolve;
+    private onEndResolve;
     static getReflectionGroups(reflections: Reflection[]): ReflectionGroup[];
-    private static getMarkupValueExampleFromType(name, ref);
+    private static getMarkupValueExampleFromType;
     private static getMarkupValueExampleForUnionType;
-    private static getKindString(kind);
+    private static getKindString;
     static getKindSingular(kind: ReflectionKind): string;
     static getKindPlural(kind: ReflectionKind): string;
     static sortCallback(a: Reflection, b: Reflection): number;

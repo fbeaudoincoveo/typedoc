@@ -13,7 +13,6 @@ var highlight = require("highlight.js");
 import * as Path from 'path';
 import * as FS from 'fs';
 import * as typescript from 'typescript';
-import { Minimatch, IMinimatch } from 'minimatch';
 
 import { Converter } from './converter/index';
 import { Renderer } from './output/renderer';
@@ -281,15 +280,16 @@ export class Application extends ChildableComponent<Application, AbstractCompone
                     if (json.type && json.type.name) {
                         type = json.type.name;
                     }
-                    let notSupportedInValues = json.notSupportedIn ? json.notSupportedIn : '';
-                    nodeList.push({
+                    let notSupportedInValues = json.notSupportedIn ? json.notSupportedIn : ''; // Coveo-specific
+                    let obj = {
                         name: path + json.name,
                         notSupportedIn: notSupportedInValues,
                         comment: linkParser.parseMarkdown(markedText),
                         type,
                         constrainedValues,
                         miscAttributes
-                    });
+                    } as never
+                    nodeList.push(obj);
                 }
                 if (json.children != null && json.children.length > 0) {
                     let newPath = path + json.name;
@@ -313,7 +313,7 @@ export class Application extends ChildableComponent<Application, AbstractCompone
 
     // Coveo-specific
     private generateConstrainedValues(str: any) {
-        let constrainedValues = [];
+        let constrainedValues: string[] = [];
 
         if (str && str['type'] && str['type'].type == 'union') {
             if (str.type.types[1] && str.type.types[1].elementType && str.type.types[1].elementType.types) {
@@ -321,7 +321,7 @@ export class Application extends ChildableComponent<Application, AbstractCompone
                     return type.value;
                 });
                 if (str.type.types[0].type && str.type.types[0].type.toLowerCase() == 'array') {
-                    var copy = [];
+                    var copy: string[] = [];
                     for (var i = 0; i < constrainedValues.length; i++) {
                         copy[i] = constrainedValues.slice(0, i + 1).join(',');
                     }

@@ -1,7 +1,6 @@
 import * as ts from 'typescript';
 import * as _ts from '../ts-internal';
 import * as _ from 'lodash';
-import * as Path from 'path'; // Coveo-specific
 
 import { Application } from '../application';
 import { ParameterType } from '../utils/options/declaration';
@@ -337,7 +336,7 @@ export class Converter extends ChildableComponent<Application, ConverterComponen
 
             result.comment = parseComment(comment.replace(tagRegex, ''));
 
-            var tag = tagRegex.exec(comment);
+            var tag = tagRegex.exec(comment) as RegExpExecArray;
 
             if (!result.comment.tags) {
                 result.comment.tags = [];
@@ -361,7 +360,7 @@ export class Converter extends ChildableComponent<Application, ConverterComponen
             if (declarationReflection.extendedTypes) {
                 declarationReflection.extendedTypes.forEach((type) => {
                     if (type.toString().toLowerCase() == 'component') {
-                        result.kind = ReflectionKind.CoveoComponent;
+                        result!.kind = ReflectionKind.CoveoComponent;
                     }
                 })
             }
@@ -369,7 +368,7 @@ export class Converter extends ChildableComponent<Application, ConverterComponen
             if (declarationReflection.implementedTypes) {
                 declarationReflection.implementedTypes.forEach((impl) => {
                     if (impl.toString().toLowerCase().indexOf('icomponentbindings') >= 0) {
-                        result.kind = ReflectionKind.CoveoComponent;
+                        result!.kind = ReflectionKind.CoveoComponent;
                     }
                 })
             }

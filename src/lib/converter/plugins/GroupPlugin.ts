@@ -150,7 +150,7 @@ export class GroupPlugin extends ConverterComponent {
             if (child.flags.isCoveoComponentOptions) { // Coveo-specific
                 group.title = 'Component Options';
             }
-            group.children.push(child);
+            group.children.push(child); // Coveo-specific
             if (group.title == 'Component Options') {
                 if (group.children[0]['children']) {
                     group.children = group.children[0]['children'];
@@ -161,14 +161,11 @@ export class GroupPlugin extends ConverterComponent {
                                 child.markupExample = valuesExamples.map((example) => {
                                     return `data-${child.name.replace(camelCaseToHyphenRegex, '-$1$2').toLowerCase()}='${example}'`;
                                 }).join('\n');
-                                if (child.markupExample == '') {
-                                    child.markupExample = null;
-                                }
                             }
                         }
-                        if (child.comment.hasTag('notsupportedin')) {
+                        if (child.comment && child.comment.hasTag('notsupportedin')) {
                             var tag = child.comment.getTag('notsupportedin');
-                            tag.tagName = 'Not supported in';
+                            if (tag) { tag.tagName = 'Not supported in'; }
                         }
                     })
                 }
@@ -202,8 +199,8 @@ export class GroupPlugin extends ConverterComponent {
     }
 
     // Coveo-specific
-    private static getMarkupValueExampleFromType(name: string, ref: Reflection): string[] {
-        let ret = [];
+    private static getMarkupValueExampleFromType(name: string, ref: Reflection | null): string[] {
+        let ret: string[] = [];
         if (ref && ref['type'] && ref['type'].constructor.name.toLowerCase() == 'uniontype') {
             ret = GroupPlugin.getMarkupValueExampleForUnionType(ref);
         } else if (name) {
@@ -221,7 +218,7 @@ export class GroupPlugin extends ConverterComponent {
                     ret = ['10'];
                     break;
                 case 'array':
-                    if (ref['type'] && ref['type'].typeArguments && ref['type'].typeArguments[0]) {
+                    if (ref && ref['type'] && ref['type'].typeArguments && ref['type'].typeArguments[0]) {
                         ret = GroupPlugin.getMarkupValueExampleFromType(ref['type'].typeArguments[0].name, ref);
                         ret = ret.map((example) => {
                             return `${example},${example}2`;
@@ -234,14 +231,14 @@ export class GroupPlugin extends ConverterComponent {
     }
 
     private static getMarkupValueExampleForUnionType = function (ref) {
-        var ret = [];
+        var ret: string[] = [];
         if (ref && ref.type && ref.type.types[0] && ref.type.types[0].typeArguments && ref.type.types[0].typeArguments[0]) {
             if (ref.type.types[0].typeArguments[0].constructor.name.toLowerCase() == 'uniontype') {
                 ret = ref.type.types[0].typeArguments[0].types.map(function (type) {
                     return type.value;
                 });
                 if (ref.type.types[0].name && ref.type.types[0].name.toLowerCase() == 'array') {
-                    var copy = [];
+                    var copy: string[] = [];
                     for (var i = 0; i < ret.length; i++) {
                         copy[i] = ret.slice(0, i + 1).join(',');
                     }
@@ -249,7 +246,7 @@ export class GroupPlugin extends ConverterComponent {
                 }
                 ret = ret.slice(0, 4);
             } else {
-                ret = GroupPlugin.getMarkupValueExampleFromType(ref.type.types[0].typeArguments[0].name, undefined);
+                ret = GroupPlugin.getMarkupValueExampleFromType(ref.type.types[0].typeArguments[0].name, null);
             }
         }
         return ret;

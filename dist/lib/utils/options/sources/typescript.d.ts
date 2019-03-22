@@ -5,5 +5,5 @@ export declare class TypeScriptSource extends OptionsComponent {
     static IGNORED: string[];
     initialize(): void;
     getOptionDeclarations(): DeclarationOption[];
-    private addTSOption(option);
+    private addTSOption;
 }

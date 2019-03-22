@@ -1,6 +1,6 @@
 export declare enum ParameterHint {
     File = 0,
-    Directory = 1,
+    Directory = 1
 }
 export declare enum ParameterType {
     String = 0,
@@ -8,11 +8,11 @@ export declare enum ParameterType {
     Boolean = 2,
     Map = 3,
     Mixed = 4,
-    Array = 5,
+    Array = 5
 }
 export declare enum ParameterScope {
     TypeDoc = 0,
-    TypeScript = 1,
+    TypeScript = 1
 }
 export interface DeclarationOption {
     name: string;
@@ -22,24 +22,27 @@ export interface DeclarationOption {
     type?: ParameterType;
     hint?: ParameterHint;
     scope?: ParameterScope;
-    map?: {};
+    map?: 'object' | Map<string | number, any> | {
+        [key: string]: any;
+    };
     mapError?: string;
     defaultValue?: any;
     convert?: (param: OptionDeclaration, value?: any) => any;
 }
 export declare class OptionDeclaration {
     name: string;
-    short: string;
-    component: string;
+    component?: string;
+    short?: string;
     help: string;
     type: ParameterType;
-    hint: ParameterHint;
+    hint?: ParameterHint;
     scope: ParameterScope;
-    protected map: Object | Map<string, any> | 'object';
-    mapError: string;
-    isArray: boolean;
+    protected map?: {
+        [k: string]: any;
+    } | 'object';
+    mapError?: string;
     defaultValue: any;
     constructor(data: DeclarationOption);
     getNames(): string[];
-    convert(value: any, errorCallback?: Function): any;
+    convert(value: unknown, errorCallback?: (format: string, ...args: string[]) => void): any;
 }

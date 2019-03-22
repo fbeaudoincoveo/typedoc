@@ -4,7 +4,7 @@ import { ProjectReflection } from '../models/reflections/project';
 import { RendererComponent } from './components';
 import { ChildableComponent } from '../utils/component';
 export declare class Renderer extends ChildableComponent<Application, RendererComponent> {
-    theme: Theme;
+    theme?: Theme;
     themeName: string;
     disableOutputCheck: boolean;
     gaID: string;
@@ -14,9 +14,9 @@ export declare class Renderer extends ChildableComponent<Application, RendererCo
     toc: string[];
     initialize(): void;
     render(project: ProjectReflection, outputDirectory: string): void;
-    private renderDocument(page);
-    private prepareTheme();
-    private prepareOutputDirectory(directory);
+    private renderDocument;
+    private prepareTheme;
+    private prepareOutputDirectory;
     static getThemeDirectory(): string;
     static getDefaultTheme(): string;
 }

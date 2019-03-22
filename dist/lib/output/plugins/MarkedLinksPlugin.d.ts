@@ -6,9 +6,9 @@ export declare class MarkedLinksPlugin extends ContextAwareRendererComponent {
     listInvalidSymbolLinks: boolean;
     private warnings;
     initialize(): void;
-    private replaceBrackets(text);
-    private replaceInlineTags(text);
-    private buildLink(original, target, caption, monospace?);
+    private replaceBrackets;
+    private replaceInlineTags;
+    private buildLink;
     onParseMarkdown(event: MarkdownEvent): void;
     onEndRenderer(event: RendererEvent): void;
     static splitLinkText(text: string): {

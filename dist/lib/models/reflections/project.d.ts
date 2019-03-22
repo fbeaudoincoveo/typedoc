@@ -1,7 +1,6 @@
 import { SourceFile, SourceDirectory } from '../sources/index';
 import { Reflection, ReflectionKind } from './abstract';
 import { ContainerReflection } from './container';
-import { ReflectionCategory } from '../ReflectionCategory';
 export declare class ProjectReflection extends ContainerReflection {
     reflections: {
         [id: number]: Reflection;
@@ -11,9 +10,8 @@ export declare class ProjectReflection extends ContainerReflection {
     };
     directory: SourceDirectory;
     files: SourceFile[];
-    categories: ReflectionCategory[];
     name: string;
-    readme: string;
+    readme?: string;
     packageInfo: any;
     constructor(name: string);
     isProject(): boolean;
