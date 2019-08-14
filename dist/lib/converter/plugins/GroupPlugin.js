@@ -86,7 +86,7 @@ var GroupPlugin = (function (_super) {
                     group.children.forEach(function (child) {
                         if (child.name) {
                             if (child['type']) {
-                                var valuesExamples = GroupPlugin_1.getMarkupValueExampleFromType(child['type'].name, child);
+                                var valuesExamples = child.examples ? child.examples : GroupPlugin_1.getMarkupValueExampleFromType(child['type'].name, child);
                                 child.markupExample = valuesExamples.map(function (example) {
                                     return "data-" + child.name.replace(camelCaseToHyphenRegex, '-$1$2').toLowerCase() + "='" + example + "'";
                                 }).join('\n');
