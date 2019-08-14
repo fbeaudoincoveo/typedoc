@@ -344,7 +344,7 @@ export class Converter extends ChildableComponent<Application, ConverterComponen
             result.comment = parseComment(comment.replace(examplesTagRegex, ''));
 
             var tag = examplesTagRegex.exec(comment);
-            if (!!tag[1]) {
+            if (!tag[1]) {
                 return;
             }
 
