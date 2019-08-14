@@ -151,7 +151,7 @@ var Converter = (function (_super) {
             var examplesTagRegex = /@(?:examples)\s*((?:'[^'\\]*(?:\\.[^'\\]*)*',\s*)*'[^'\\]*(?:\\.[^'\\]*)*')/;
             result.comment = comment_1.parseComment(comment.replace(examplesTagRegex, ''));
             var tag = examplesTagRegex.exec(comment);
-            if (!!tag[1]) {
+            if (!tag[1]) {
                 return;
             }
             result.examples = (tag[1].split(',')).map(function (s) { return s.trim().slice(1, -1); });
