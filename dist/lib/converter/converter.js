@@ -147,6 +147,15 @@ var Converter = (function (_super) {
             result.comment.tags.push(new comments_1.CommentTag('not supported in', '', tagValue));
             result.notSupportedIn = tag[1].split(/,\s?/);
         }
+        if (result && comment != null && comment.indexOf('@examples') != -1) {
+            var examplesTagRegex = /@(?:examples)\s*((?:'[^'\\]*(?:\\.[^'\\]*)*',\s*)*'[^'\\]*(?:\\.[^'\\]*)*')/g;
+            result.comment = comment_1.parseComment(comment.replace(examplesTagRegex, ''));
+            var tag_1 = examplesTagRegex.exec(comment);
+            if (!!tag_1[1]) {
+                return;
+            }
+            result.examples = (tag_1[1].split(',')).map(function (s) { return s.trim().slice(1, -1); });
+        }
         if (result && comment != null && comment.indexOf('@componentOptions') != -1) {
             result.setFlag(__1.ReflectionFlag.CoveoComponentOptions, true);
         }
