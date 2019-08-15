@@ -339,16 +339,16 @@ export class Converter extends ChildableComponent<Application, ConverterComponen
         }
 
         if (result && comment != null && comment.indexOf('@examples') != -1) {
-            var examplesTagRegex = /@(?:examples)\s*((?:'[^'\\]*(?:\\.[^'\\]*)*',\s*)*'[^'\\]*(?:\\.[^'\\]*)*')/;
+            const examplesTagRegex = new RegExp(/@(?:examples)\s(.*)/);
 
             result.comment = parseComment(comment.replace(examplesTagRegex, ''));
 
-            var tag = examplesTagRegex.exec(comment);
-            if (!tag[1]) {
+            const examplesTag = examplesTagRegex.exec(comment);
+            if (!examplesTag || !examplesTag[1]) {
                 return;
             }
 
-            result.examples = (tag[1].split(',')).map(s => s.trim().slice(1, -1));
+            result.examples = (examplesTag[1].split(/(?<!\\),/)).map(s => s.trim().slice(1, -1));
         }
 
         if (result && comment != null && comment.indexOf('@componentOptions') != -1) {
