@@ -148,13 +148,13 @@ var Converter = (function (_super) {
             result.notSupportedIn = tag[1].split(/,\s?/);
         }
         if (result && comment != null && comment.indexOf('@examples') != -1) {
-            var examplesTagRegex = /@(?:examples)\s*((?:'[^'\\]*(?:\\.[^'\\]*)*',\s*)*'[^'\\]*(?:\\.[^'\\]*)*')/;
+            var examplesTagRegex = new RegExp(/@(?:examples)\s(.*)/);
             result.comment = comment_1.parseComment(comment.replace(examplesTagRegex, ''));
-            var tag = examplesTagRegex.exec(comment);
-            if (!tag[1]) {
+            var examplesTag = examplesTagRegex.exec(comment);
+            if (!examplesTag || !examplesTag[1]) {
                 return;
             }
-            result.examples = (tag[1].split(',')).map(function (s) { return s.trim().slice(1, -1); });
+            result.examples = (examplesTag[1].split(/(?<!\\),/)).map(function (s) { return s.trim().slice(1, -1); });
         }
         if (result && comment != null && comment.indexOf('@componentOptions') != -1) {
             result.setFlag(__1.ReflectionFlag.CoveoComponentOptions, true);
