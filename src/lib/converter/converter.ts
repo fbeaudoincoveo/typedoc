@@ -348,7 +348,7 @@ export class Converter extends ChildableComponent<Application, ConverterComponen
                 return;
             }
 
-            result.examples = (examplesTag[1].split(/(?<!\\),/)).map(s => s.trim().slice(1, -1));
+            result.examples = (examplesTag[1].split(/(?<!\\),/)).map(s => s.trim().replace('\\,', ','));
         }
 
         if (result && comment != null && comment.indexOf('@componentOptions') != -1) {
