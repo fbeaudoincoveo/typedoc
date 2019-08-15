@@ -154,7 +154,7 @@ var Converter = (function (_super) {
             if (!examplesTag || !examplesTag[1]) {
                 return;
             }
-            result.examples = (examplesTag[1].split(/(?<!\\),/)).map(function (s) { return s.trim().replace('\\,', ','); });
+            result.examples = examplesTag[1].split(/(?<!\\),/).map(function (s) { return s.trim().replace('\\,', ',').replace('\'', '&apos;'); });
         }
         if (result && comment != null && comment.indexOf('@componentOptions') != -1) {
             result.setFlag(__1.ReflectionFlag.CoveoComponentOptions, true);
