@@ -297,6 +297,8 @@ export abstract class Reflection {
 
     notSupportedIn: string[];
 
+    examples: string[];
+
     /**
      * Url safe alias for this reflection.
      *

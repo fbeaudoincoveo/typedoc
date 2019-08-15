@@ -338,6 +338,19 @@ export class Converter extends ChildableComponent<Application, ConverterComponen
             result.notSupportedIn = tag[1].split(/,\s?/);
         }
 
+        if (result && comment != null && comment.indexOf('@examples') != -1) {
+            const examplesTagRegex = new RegExp(/@(?:examples)\s(.*)/);
+
+            result.comment = parseComment(comment.replace(examplesTagRegex, ''));
+
+            const examplesTag = examplesTagRegex.exec(comment);
+            if (!examplesTag || !examplesTag[1]) {
+                return;
+            }
+
+            result.examples = examplesTag[1].split(/(?<!\\),/).map(s => s.trim().replace('\\,', ',').replace('\'', '&apos;'));
+        }
+
         if (result && comment != null && comment.indexOf('@componentOptions') != -1) {
             result.setFlag(ReflectionFlag.CoveoComponentOptions, true);
         }
