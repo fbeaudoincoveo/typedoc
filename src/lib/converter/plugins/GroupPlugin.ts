@@ -158,7 +158,7 @@ export class GroupPlugin extends ConverterComponent {
                     group.children.forEach((child) => {
                         if (child.name) {
                             if (child['type']) {
-                                let valuesExamples = child.examples ? child.examples : GroupPlugin.getMarkupValueExampleFromType(child['type'].name, child);
+                                const valuesExamples = child.examples ? child.examples : GroupPlugin.getMarkupValueExampleFromType(child['type'].name, child);
                                 child.markupExample = valuesExamples.map((example) => {
                                     return `data-${child.name.replace(camelCaseToHyphenRegex, '-$1$2').toLowerCase()}='${example}'`;
                                 }).join('\n');
