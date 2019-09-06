@@ -299,6 +299,16 @@ export abstract class Reflection {
 
     examples: string[];
 
+    coveoavailableSince?: string;
+    coveodefault?: string;
+    coveodependsOn?: string;
+    coveodeprecatedSince?: string;
+    coveoexternalDocs?: string;
+    coveoisResultTemplateComponent?: string;
+    coveomaximum?: string;
+    coveominimum?: string;
+    coveorequired?: string;
+
     /**
      * Url safe alias for this reflection.
      *

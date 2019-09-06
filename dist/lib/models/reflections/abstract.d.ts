@@ -115,6 +115,15 @@ export declare abstract class Reflection {
     markupExample: string;
     notSupportedIn: string[];
     examples: string[];
+    coveoavailableSince?: string;
+    coveodefault?: string;
+    coveodependsOn?: string;
+    coveodeprecatedSince?: string;
+    coveoexternalDocs?: string;
+    coveoisResultTemplateComponent?: string;
+    coveomaximum?: string;
+    coveominimum?: string;
+    coveorequired?: string;
     private _alias;
     private _aliases;
     constructor(parent?: Reflection, name?: string, kind?: ReflectionKind);

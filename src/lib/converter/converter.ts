@@ -14,6 +14,7 @@ import { normalizePath } from '../utils/fs';
 import { getRawComment, parseComment } from './factories/comment';
 import { CommentTag } from '../models/comments';
 import { ReflectionFlag, DeclarationReflection, ReflectionKind } from '../..';
+import { ICoveoCustomTag, CoveoCustomTagTypes, coveoTags } from '../coveo/coveoCustomTags';
 
 /**
  * Result structure of the [[Converter.convert]] method.
@@ -318,6 +319,104 @@ export class Converter extends ChildableComponent<Application, ConverterComponen
         context.visitStack = oldVisitStack;
         var comment = getRawComment(node);
 
+        const coveoParseCustomTag = (tag: ICoveoCustomTag) => {
+            if (result && comment !== null && comment.indexOf(`@${tag.name}`) !== -1) {
+                const tagRegex = new RegExp(`@(?:${tag.name}) (.*)|@(?:${tag.name})`);
+                result.comment = parseComment(comment.replace(tagRegex, ''));
+
+                const parsedTag = tagRegex.exec(comment);
+                if (!parsedTag || (tag.type !== CoveoCustomTagTypes.Boolean && !parsedTag[1]) ) {
+                  return;
+                }
+
+                const coveoCustomReflectionProperty = `coveo${tag.name}`;
+
+                switch (tag.type) {
+                    case CoveoCustomTagTypes.Boolean:
+                      result[coveoCustomReflectionProperty] = tag.func(parsedTag[1] && parsedTag[1].trim() === "false" ? false: true, result);
+                      break;
+
+                    case CoveoCustomTagTypes.List:
+                      result[coveoCustomReflectionProperty] = tag.func(parsedTag[1].split(/(?<!\\),/).map(s => s.trim().replace('\\,', ',')), result);
+                     break;
+
+                    case CoveoCustomTagTypes.Scalar:
+                      result[coveoCustomReflectionProperty] = tag.func(parsedTag[1].trim(), result);
+                      break;
+
+                    default:
+                      break;
+                  }
+            }
+        }
+
+        coveoTags.map((tag) => coveoParseCustomTag(tag));
+
+        const coveoUpdateComment = () => {
+            let preComment = "";
+            if (result.coveoavailableSince) {
+                preComment += `\n* ${result.coveoavailableSince}\n*\n`;
+            }
+            if (result.coveodeprecatedSince) {
+                preComment += `\n* ${result.coveodeprecatedSince}\n*\n`;
+            }
+            if (result.coveorequired && result.kind !== ReflectionKind.CoveoComponent) {
+                preComment += `\n* ${result.coveorequired}\n*\n`;
+            }
+
+            let postComment = "";
+            if (result.coveorequired && result.kind === ReflectionKind.CoveoComponent) {
+                postComment += `\n*\n* ${result.coveorequired}`;
+            }
+            if (result.coveodependsOn) {
+                postComment += `\n*\n* ${result.coveodependsOn}`;
+            }
+            if (result.coveoisResultTemplateComponent) {
+                postComment += `\n*\n* ${result.coveoisResultTemplateComponent}`;
+            }
+            if (result.coveoexternalDocs) {
+                postComment += `\n*\n* ${result.coveoexternalDocs}`;
+            }
+            if (result.coveominimum) {
+                postComment += `\n*\n* ${result.coveominimum}`;
+                comment = comment.replace(/@minimum .*/, '');
+            }
+            if (result.coveomaximum) {
+                postComment += `\n*\n* ${result.coveomaximum}`;
+            }
+            if (result.coveodefault) {
+                postComment += `\n*\n* ${result.coveodefault}`;
+            }
+
+            let tagRegexStr = "@("
+            coveoTags.forEach((tag, index) => {
+                if (index < coveoTags.length - 1) {
+                    tagRegexStr += `${tag.name}|`;
+                } else {
+                    tagRegexStr += `${tag.name})`;
+                    tagRegexStr += ` (.*)|${tagRegexStr}`;
+                }
+            })
+
+            const tagRegex = new RegExp(tagRegexStr, "g");
+
+            const regex = new RegExp(/^(\/\*\*) *\n(( *\*.*\n)*)( *\*\/)$/);
+            const parsedComment = comment.match(regex);
+            if (!parsedComment || parsedComment.length !== 5) {
+                return;
+            }
+            let beginning = parsedComment[1];
+            const core = parsedComment[2];
+            let end = parsedComment[4];
+
+            const finalComment = beginning + preComment + core + postComment + end;
+            result.comment = parseComment(finalComment.replace(tagRegex, ''));
+        }
+
+        if (result && comment !== null) {
+            coveoUpdateComment();
+        }
+
         if (result && comment != null && comment.indexOf('@notSupportedIn') != -1) {
             var tagRegex = /@(?:notSupportedIn)\s*((?:[\w]+, )*[\w]+)/g;
 
@@ -339,7 +438,7 @@ export class Converter extends ChildableComponent<Application, ConverterComponen
         }
 
         if (result && comment != null && comment.indexOf('@examples') != -1) {
-            const examplesTagRegex = new RegExp(/@(?:examples)\s(.*)/);
+            const examplesTagRegex = new RegExp(/@(?:examples)\s+(.*)/);
 
             result.comment = parseComment(comment.replace(examplesTagRegex, ''));
 
@@ -417,7 +516,7 @@ export class Converter extends ChildableComponent<Application, ConverterComponen
     private compile(context: Context): ReadonlyArray<ts.Diagnostic> {
         const program = context.program;
 
-        const appDirectory = this.compilerHost.currentDirectory;        
+        const appDirectory = this.compilerHost.currentDirectory;
         program.getSourceFiles().forEach((sourceFile) => {
             if(!Path.isAbsolute(sourceFile.fileName)) {
               sourceFile.fileName = normalizePath(_ts.normalizeSlashes(Path.join(appDirectory, sourceFile.fileName)));

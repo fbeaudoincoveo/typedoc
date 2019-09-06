@@ -29,6 +29,7 @@ var fs_1 = require("../utils/fs");
 var comment_1 = require("./factories/comment");
 var comments_1 = require("../models/comments");
 var __1 = require("../..");
+var coveoCustomTags_1 = require("../coveo/coveoCustomTags");
 var Converter = (function (_super) {
     __extends(Converter, _super);
     function Converter() {
@@ -132,6 +133,90 @@ var Converter = (function (_super) {
         }
         context.visitStack = oldVisitStack;
         var comment = comment_1.getRawComment(node);
+        var coveoParseCustomTag = function (tag) {
+            if (result && comment !== null && comment.indexOf("@" + tag.name) !== -1) {
+                var tagRegex_1 = new RegExp("@(?:" + tag.name + ") (.*)|@(?:" + tag.name + ")");
+                result.comment = comment_1.parseComment(comment.replace(tagRegex_1, ''));
+                var parsedTag = tagRegex_1.exec(comment);
+                if (!parsedTag || (tag.type !== coveoCustomTags_1.CoveoCustomTagTypes.Boolean && !parsedTag[1])) {
+                    return;
+                }
+                var coveoCustomReflectionProperty = "coveo" + tag.name;
+                switch (tag.type) {
+                    case coveoCustomTags_1.CoveoCustomTagTypes.Boolean:
+                        result[coveoCustomReflectionProperty] = tag.func(parsedTag[1] && parsedTag[1].trim() === "false" ? false : true, result);
+                        break;
+                    case coveoCustomTags_1.CoveoCustomTagTypes.List:
+                        result[coveoCustomReflectionProperty] = tag.func(parsedTag[1].split(/(?<!\\),/).map(function (s) { return s.trim().replace('\\,', ','); }), result);
+                        break;
+                    case coveoCustomTags_1.CoveoCustomTagTypes.Scalar:
+                        result[coveoCustomReflectionProperty] = tag.func(parsedTag[1].trim(), result);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        };
+        coveoCustomTags_1.coveoTags.map(function (tag) { return coveoParseCustomTag(tag); });
+        var coveoUpdateComment = function () {
+            var preComment = "";
+            if (result.coveoavailableSince) {
+                preComment += "\n* " + result.coveoavailableSince + "\n*\n";
+            }
+            if (result.coveodeprecatedSince) {
+                preComment += "\n* " + result.coveodeprecatedSince + "\n*\n";
+            }
+            if (result.coveorequired && result.kind !== __1.ReflectionKind.CoveoComponent) {
+                preComment += "\n* " + result.coveorequired + "\n*\n";
+            }
+            var postComment = "";
+            if (result.coveorequired && result.kind === __1.ReflectionKind.CoveoComponent) {
+                postComment += "\n*\n* " + result.coveorequired;
+            }
+            if (result.coveodependsOn) {
+                postComment += "\n*\n* " + result.coveodependsOn;
+            }
+            if (result.coveoisResultTemplateComponent) {
+                postComment += "\n*\n* " + result.coveoisResultTemplateComponent;
+            }
+            if (result.coveoexternalDocs) {
+                postComment += "\n*\n* " + result.coveoexternalDocs;
+            }
+            if (result.coveominimum) {
+                postComment += "\n*\n* " + result.coveominimum;
+                comment = comment.replace(/@minimum .*/, '');
+            }
+            if (result.coveomaximum) {
+                postComment += "\n*\n* " + result.coveomaximum;
+            }
+            if (result.coveodefault) {
+                postComment += "\n*\n* " + result.coveodefault;
+            }
+            var tagRegexStr = "@(";
+            coveoCustomTags_1.coveoTags.forEach(function (tag, index) {
+                if (index < coveoCustomTags_1.coveoTags.length - 1) {
+                    tagRegexStr += tag.name + "|";
+                }
+                else {
+                    tagRegexStr += tag.name + ")";
+                    tagRegexStr += " (.*)|" + tagRegexStr;
+                }
+            });
+            var tagRegex = new RegExp(tagRegexStr, "g");
+            var regex = new RegExp(/^(\/\*\*) *\n(( *\*.*\n)*)( *\*\/)$/);
+            var parsedComment = comment.match(regex);
+            if (!parsedComment || parsedComment.length !== 5) {
+                return;
+            }
+            var beginning = parsedComment[1];
+            var core = parsedComment[2];
+            var end = parsedComment[4];
+            var finalComment = beginning + preComment + core + postComment + end;
+            result.comment = comment_1.parseComment(finalComment.replace(tagRegex, ''));
+        };
+        if (result && comment !== null) {
+            coveoUpdateComment();
+        }
         if (result && comment != null && comment.indexOf('@notSupportedIn') != -1) {
             var tagRegex = /@(?:notSupportedIn)\s*((?:[\w]+, )*[\w]+)/g;
             result.comment = comment_1.parseComment(comment.replace(tagRegex, ''));
@@ -148,7 +233,7 @@ var Converter = (function (_super) {
             result.notSupportedIn = tag[1].split(/,\s?/);
         }
         if (result && comment != null && comment.indexOf('@examples') != -1) {
-            var examplesTagRegex = new RegExp(/@(?:examples)\s(.*)/);
+            var examplesTagRegex = new RegExp(/@(?:examples)\s+(.*)/);
             result.comment = comment_1.parseComment(comment.replace(examplesTagRegex, ''));
             var examplesTag = examplesTagRegex.exec(comment);
             if (!examplesTag || !examplesTag[1]) {
