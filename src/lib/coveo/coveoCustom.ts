@@ -100,11 +100,11 @@ export class CoveoCustom {
 
   static setNotSupportedInTag(converter: Converter, result: Reflection, comment: string) {
     if (comment.indexOf('@notSupportedIn') !== -1) {
-      var tagRegex = /@(?:notSupportedIn)\s*((?:[\w]+, )*[\w]+)/g;
+      const tagRegex = /@(?:notSupportedIn)\s*((?:[\w]+, )*[\w]+)/g;
 
       result.comment = parseComment(comment.replace(tagRegex, ""));
 
-      var tag = tagRegex.exec(comment);
+      const tag = tagRegex.exec(comment);
 
       if (!result.comment.tags) {
           result.comment.tags = [];
