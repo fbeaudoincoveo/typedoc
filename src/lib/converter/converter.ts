@@ -310,7 +310,7 @@ export class Converter extends ChildableComponent<Application, ConverterComponen
         context.visitStack = oldVisitStack.slice();
         context.visitStack.push(node);
 
-        let result: Reflection
+        let result: Reflection;
         if (node.kind in this.nodeConverters) {
             result = this.nodeConverters[node.kind].convert(context, node);
         }
